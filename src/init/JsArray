@@ -1,0 +1,142 @@
+#include"JsObject.h"
+#include"JsContext.h"
+#include"JsEngine.h"
+#include"JsVm.h"
+#include"JsValue.h"
+#include"JsList.h"
+#include"JsSys.h"
+#include"JsDebug.h"
+#include"JsFunction.h"
+#include"JsAst.h"
+#include"JsECMAScript.h"
+#include"JsError.h"
+#include<stdlib.h>
+#include<stdio.h>
+#include<string.h>
+
+static void JsArrayObjectInit(struct JsObject* array,struct JsObject* array_proto);	
+static void JsArrayProtoInit(struct JsObject* array,struct JsObject* array_proto);
+
+//----------------------------------------------------------------------------
+static void JsArrayConstCall(struct JsObject *self, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res);
+
+static void JsArrayInstPut(struct JsObject *self,char *prop, struct JsValue *value, int flags);			
+			
+			
+			
+			
+//----------------------------------------------------------------------------
+void JsArrayInit(struct JsVm* vm){
+
+	struct JsObject* array = JsCreateStandardFunctionObject(NULL,TRUE);
+	struct JsObject* array_proto = JsCreateStandardObject();
+	
+	JsArrayObjectInit(array,array_proto);
+	JsArrayProtoInit(array,array_proto);
+}
+
+
+//----------------------------------------------------------------------------
+static void JsArrayObjectInit(struct JsObject* array,struct JsObject* array_proto){
+	array->Call = &JsArrayConstCall;
+	array->Construct = &JsArrayConstCall;
+}
+static void JsArrayProtoInit(struct JsObject* array,struct JsObject* array_proto){
+	struct JsValue* vPrototype = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	vPrototype->type = JS_OBJECT;
+	vPrototype->u.object = array_proto;
+	(*array->Put)(array,"length",length,JS_OBJECT_ATTR_STRICT);
+}
+//----------------------------------------------------------------
+
+static void JsArrayConstCall(struct JsObject *self, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+	struct JsValue v;
+	struct JsValue* length = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	length->type = JS_NUMBER;
+	if(argc <= 0){
+		length->u.number = 0;
+	}else if(argc == 1){
+		if(argv[0]->type == JS_NUMBER){
+			length->u.number = argv[0]->u.number;
+		}else{
+			//throw
+			JsThrowString("RangeError");
+		}
+	}else{
+		//[item0, item1 ...]
+		length->u.number = argc;
+	}
+	//create Array Object
+	struct JsObject* array = JsCreateStandardObject();
+	(*self->Get)(self,"prototype",NULL,&v);
+	if(v.type != JS_OBJECT || strcmp(v.u.object->Class,"Array") != 0)
+		JsAssert(FALSE);
+	array->Prototype = v.u.object;
+	array->Class = "Array";
+	(*array->Put)(array,"length",length,JS_OBJECT_ATTR_DONTENUM | JS_OBJECT_ATTR_DONTDELETE);
+	array->Put = &JsArrayInstPut;
+	//构建[item...]
+	int i;
+	for( i = 0 ; i < length->u.number && argc != 1 ;++i){
+		//argc = 1 表示调用 15.4.2.2 
+		
+		//计算bit
+		int number = i;
+		int bit = 0;
+		while(number){
+			number /=10;
+			bit++;
+		}
+		char* buf = (char*)JsMalloc(bit);
+		sprintf(buf,"%d",i);
+		(*array->Put)(array,buf,argv[i],JS_OBJECT_ATTR_DEFAULT);
+	}
+	res->type = JS_OBJECT;
+	res->u.object = array;
+}
+static void JsArrayInstPut(struct JsObject *self,char *prop, struct JsValue *value, int flags){
+	struct JsValue v;
+	struct JsValue v0;
+	if(strcmp(prop,"length") == 0){
+		if(value->type != JS_NUMBER || value->u.number < 0)
+			JsThrowString("RangeError");
+		(*self->Get)(self,"length",NULL,&v);
+		if(v.type != JS_UNDEFINED){
+			int i;
+			for( i=value->u.number ; i< v.u.number;++i){
+				//计算bit
+				int number = i;
+				int bit = 0;
+				while(number){
+					number /=10;
+					bit++;
+				}
+				char* buf = (char*)JsMalloc(bit);
+				sprintf(buf,"%d",i);
+				//删除不在新范围内的数组元素
+				(*self->Delete)(self,buf,&v0);
+			}
+		}
+	}else{
+		//判断是否是array Index
+		char *endptr = NULL;
+		long index = 0;
+		index = strtol(prop,&endptr);
+		if(endptr == '\0'){
+			//说明该prop被完全解析为数据=>prop为array index
+			(*self->Get)(self,"length",NULL,&v);
+			if(v.type != JS_NUMBER || v.u.number < 0)
+				JsThrowString("RangeError");
+			if(index >= v.u.number){
+				//如果大于length, 则需要重新写入length
+				struct JsValue* l = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+				l->type = JS_NUMBER;
+				l->u.number = index + 1;
+			}
+		}
+	}
+	//写入数据
+	(*self->Put)(self,prop,value,flags);
+}
