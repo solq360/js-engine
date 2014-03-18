@@ -3,12 +3,14 @@
 
 #include"JsType.h"
 /**
-
+	因为该异常机制基于栈结构, 不能多线程处理, 每个线程有且只有一个记录组.
+	且每条线程都具有一个根异常处理点.
 	使用抛出异常API的Value基本上不为JS_COMPLETION.THROW类型,
 	而是具体某个类型如:
 		JS_STRING,
 		JS_OBJECT,
 		...
+	当到捕获点的时候, 还原JsContext, 并且释放这段期间的锁
 */
 struct JsValue;
 /*
@@ -37,9 +39,9 @@ struct JsValue;
 	for(done_1234567890_abcdefg = 0;  \
 		done_1234567890_abcdefg == 0 \
 		&& (setjmp(*jmp_buf_1234567890_abcdefg) == 0 \
-			?(JsBuildPoint(jmp_buf_1234567890_abcdefg),1) \
-			: (JsOmitPoint(),0));  \
-		++done_1234567890_abcdefg, JsOmitPoint()) 
+			?(JsBuildRecord(jmp_buf_1234567890_abcdefg),1) \
+			: (JsOmitRecord(),0));  \
+		++done_1234567890_abcdefg, JsOmitRecord()) 
 		
 #define JS_CATCH \
 		if(JsGetError())
@@ -54,12 +56,21 @@ void JsThrowString(char* msg);
 	抛出一个error
 */
 void JsThrow(struct JsValue* e);
-//保存一个还原点到环境中
-void JsBuildPoint(void* p);
+//保存一个还原点到环境中,p 为jmp_buf*指针
+
+void JsBuildRecord(void* p);
+
+//每次加锁的时候, 把对应的锁添加到最近还原点的上下文中
+void JsPushLockToRecord(JsLock lock);
+//解锁的时候,  把给定的锁从最后面扫描, 剔除
+void JsPopLockInRecord(JsLock lock);
+
 //在环境中删除一个最近的还原点
-void JsOmitPoint();
+void JsOmitRecord();
+
 //获得当前错误, 并且清空, 如果没有则返回NULL
 struct JsValue* JsGetError();
+
 //设置一个错误, NULL表示清除错误
 void JsSetError(struct JsValue* v);
 #endif

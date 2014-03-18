@@ -81,7 +81,7 @@ struct JsObject* JsCreateStandardObject(struct JsObject* o);
 struct JsObject* JsCreateStandardFunctionObject(struct JsObject* o,JsList scope, int inst);
 
 /*
-	创建一个特化(使用JsFunction指针)的函数对象, 被使用在系统接口或者eval
+	创建一个特化(使用JsFunction指针)的函数对象, 被使用在系统接口或者JsEval中被调用
 	o:
 		o = NULL, 构造新空间
 	scope:

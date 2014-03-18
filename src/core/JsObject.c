@@ -107,7 +107,8 @@ struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,in
 	if(type == 0)
 		function->type = JS_FUNCTION_NATIVE;
 	else
-	function->type = JS_FUNCTION_EVAL;
+		function->type = JS_FUNCTION_EVAL;
+		
 	function->argc = argc; 
 	function->argv = argv;
 	function->data = data;
@@ -145,7 +146,8 @@ static struct JsObject* JsCreateBaseObject(struct JsObject* o,int isf,int level,
 	struct JsValue v;
 	if(o == NULL)
 		obj = JsAllocObject(JS_STANDARD_OBJECT_FLOOR);
-	obj = o;
+	else
+		obj = o;
 	//pb = (struct JsObjectPb*)obj->pb[JS_STANDARD_OBJECT_FLOOR] = JsMalloc(sizeof(struct JsPb));
 	obj->Prototype = NULL;
 	obj->Class = NULL;
@@ -544,10 +546,13 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	//处理上下文
 	saveScope = e->exec->scope;
 	e->exec->scope = newScope;
+	
 	saveThisObj = e->exec->thisObj;
 	e->exec->thisObj = (thisobj != NULL ? thisobj : e->jsVm->Global);
+	
 	saveVarattr = e->exec->varattr;
 	e->exec->varattr = JS_OBJECT_ATTR_DONTDELETE;
+	
 	struct JsStack* stack = (struct JsStack*)JsMalloc(sizeof(struct JsStack));
 	stack->loc = NULL;
 	stack->function = f;

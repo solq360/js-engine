@@ -4,7 +4,7 @@
 #include"JsType.h"
 
 struct JsEngine;
-struct JsAst;
+struct JsAstNode;
 struct JsValue;
 /****************************************************************************
 									运行时API
@@ -12,7 +12,7 @@ struct JsValue;
 /*
 	e->exec 为执行的状态
 	注意修改Engine的状态
+	如果不想知道res, 则使用NULL
 */
-void JsEval(struct JsEngine* e,struct JsAst* ast,
-			struct JsValue** res);
+void JsEval(struct JsEngine* e,struct JsAstNode* ast, struct JsValue* res);
 #endif

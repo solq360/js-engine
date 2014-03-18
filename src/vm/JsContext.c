@@ -19,39 +19,50 @@ struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c,
 			JsContextTaskFn task, void* data){
 	struct JsContext* context;
 	JsAssert(e != NULL);
-	JsAssert(task!=NULL);
-	
-	context = (struct JsContext*)JsMalloc(sizeof(struct JsContext));
-	
+	JsAssert(task != NULL);
+	context = JsCopyContext(c);
 	context->engine = e;
+	//注册到JsEngine中
 	JsContext2Engine(e,context);
-	
-	JsListInit(context->scope);
-	JsListInit(context->stack);
-	if(c == NULL){
-		JsListPush(context->scope,e->jsVm->Global);
-		struct JsStack* stack = (struct JsStack*)JsMalloc(sizeof(struct JsStack));
-		stack->loc = NULL;
-		stack->function = NULL;//表示Global
-		JsListPush(context->stack,stack);
-		context->thisObj = e->jsVm->Global;
-		context->varattr = JS_OBJECT_ATTR_READONLY;
-
-	}else{
-		JsListCopy(context->scope,c->scope);
-		JsListCopy(context->stack,c->stack);
-		context->thisObj = c->thisObj;
-		context->varattr = c->varattr;
-	}
-	
 	context->thread = NULL;
-	
 	context->data = data;
 	context->task = task;
 
 	return context;	
 }
 
+struct JsContext* JsCopyContext(struct JsContext* c){
+	struct JsContext* context;
+	
+	context = (struct JsContext*)JsMalloc(sizeof(struct JsContext));
+	context->engine = NULL;
+	JsListInit(context->scope);
+	JsListInit(context->stack);
+	if(c == NULL){
+		JsListPush(context->scope,JsGetVm()->Global);
+		struct JsStack* stack = (struct JsStack*)JsMalloc(sizeof(struct JsStack));
+		stack->loc = NULL;
+		stack->function = NULL;//表示Global
+		JsListPush(context->stack,stack);
+		context->thisObj = JsGetVm()->Global;
+		/*10.2.1*/
+		context->varattr = JS_OBJECT_ATTR_DONTDELETE;
+		context->thread = NULL;
+		context->data = NULL;
+		context->task = NULL;
+	}else{
+		context->engine = c->engine;
+		JsListCopy(context->scope,c->scope);
+		JsListCopy(context->stack,c->stack);
+		context->thisObj = c->thisObj;
+		context->varattr = c->varattr;
+		context->thread = c->thread;
+		context->data = c->data;
+		context->task = c->task;
+		
+	}
+	return context;	
+}
 //通过scope, 查询name指定的属性, 并且返回一个Ref
 void JsFindValueRef(struct JsContext* c, char* name,struct JsValue* res){
 
@@ -116,9 +127,9 @@ void JsFindValue(struct JsContext* c, char* name,struct JsValue* res){
 
 
 /*获得当前线程Context*对象*/
-void JsSetTlsContext(struct JsContext* e){
+void JsSetTlsContext(struct JsContext* c){
 	checkKey();
-	JsSetTlsValue(key,e);
+	JsSetTlsValue(key,c);
 
 }
 struct JsContext* JsGetTlsContext(){

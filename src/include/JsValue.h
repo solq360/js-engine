@@ -52,7 +52,7 @@ struct JsValue{
 /*
 	如果转换过程发生错误, 则res->type = JS_COMPLETION && JS_COMPLETION.type = throw;
 */
-//type 为JsObject.h中的Hit
+//type 为JsObject.h中的Hit, 默认为JS_OBJECT_HIT_TYPE_STRING
 void JsToPrimitive(struct JsValue *val, int type, struct JsValue *res);
 void JsToBoolean(struct JsValue *val, struct JsValue *res);
 void JsToNumber(struct JsValue *val,struct JsValue *res);

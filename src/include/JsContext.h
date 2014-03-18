@@ -52,9 +52,18 @@ struct JsContext{
 	创建新的JsContext
 	如果 c == NULL,则配置为全局Context
 	否则 拷贝c
+	最后把该context注册到JsEngine中
 */
 struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c, 
-			JsContextTaskFn taskFn, void* data);		
+			JsContextTaskFn taskFn, void* data);
+			
+/*
+	创建新的JsContext
+	如果 c == NULL,则配置为全局Context
+	否则 拷贝c
+	纯粹的拷贝context, 不进行注册.
+*/	
+struct JsContext* JsCopyContext(struct JsContext* c);	
 /*
 	
 	这两个个函数是非线程安全的, 如果在查询过程中发生属性被
@@ -70,6 +79,6 @@ void JsFindValueRef(struct JsContext* c, char* name,struct JsValue* res);
 void JsFindValue(struct JsContext* c, char* name,struct JsValue* res);
 
 /*获得当前线程Context*对象*/
-void JsSetTlsContext(struct JsContext* e);
+void JsSetTlsContext(struct JsContext* c);
 struct JsContext* JsGetTlsContext();
 #endif

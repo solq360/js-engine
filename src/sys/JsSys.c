@@ -7,6 +7,7 @@
 #include"JsSys.h"
 #include"JsInit.h"
 #include"JsDebug.h"
+#include"JsError.h"
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
@@ -18,11 +19,13 @@ static pthread_mutexattr_t* lock_attr = NULL;;
 static void checkLockAttr();
 
 void JsGLock(){
-
+	//记录到还原点上
+	JsPushLockToRecord((JsLock)&globalLock);
 	pthread_mutex_lock(&globalLock);
 }
 void JsGUnlock(){
-
+	//从还原记录上下文中删除该锁
+	JsPopLockInRecord((JsLock)&globalLock);
 	pthread_mutex_unlock(&globalLock);
 }
 
@@ -34,10 +37,14 @@ void JsCreateLock(JsLock* lock){
 }
 void JsLockup(JsLock lock){
 	JsAssert(lock != NULL);
+	//记录到还原点上
+	JsPushLockToRecord(lock);
 	pthread_mutex_lock((pthread_mutex_t*)lock);
 }
 void JsUnlock(JsLock lock){
 	JsAssert(lock != NULL);
+	//从还原记录上下文中删除该锁
+	JsPopLockInRecord(lock);
 	pthread_mutex_unlock((pthread_mutex_t*)lock);  
 }
 void JsDestroyLock(JsLock* lock){
@@ -80,7 +87,13 @@ void* JsMalloc(int size){
 	if( size <= 0 )  
 		return NULL;
 	void * p = malloc(size);
+	JsAssert(p != NULL);
 	memset(p,0,size);
+	return p;
+}
+void* JsReAlloc(void* mem,int newSize){
+	void* p = realloc(mem,newSize);
+	JsAssert(p != NULL);
 	return p;
 }
 
