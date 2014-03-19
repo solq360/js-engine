@@ -35,10 +35,10 @@ struct JsContext* JsCopyContext(struct JsContext* c){
 	struct JsContext* context;
 	
 	context = (struct JsContext*)JsMalloc(sizeof(struct JsContext));
-	context->engine = NULL;
 	JsListInit(context->scope);
 	JsListInit(context->stack);
 	if(c == NULL){
+		context->engine = NULL;
 		JsListPush(context->scope,JsGetVm()->Global);
 		struct JsStack* stack = (struct JsStack*)JsMalloc(sizeof(struct JsStack));
 		stack->loc = NULL;

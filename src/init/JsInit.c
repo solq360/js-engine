@@ -18,6 +18,9 @@
 static	void JsGlobalEval(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res);
 
 void JsECMAScriptObjectInit(struct JsVm* vm){
+	
+	struct JsValue t ;
+	struct JsValue* v;
 	//初始化vm->Global对象
 	struct JsObject* Global =  JsCreateStandardObject(NULL);
 	vm->Global = Global;	
@@ -29,9 +32,19 @@ void JsECMAScriptObjectInit(struct JsVm* vm){
 	JsNumberInit(vm);
 	
 	
-	//配置Global属性
+	//配置Global
+	//Gloabl->Prototype
+	
+	(*vm->Global->Get)(vm->Global,"Object",NULL,&t);
+	if(t.type != JS_OBJECT)
+		JsAssert(FALSE);
+	(*t.u.object->Get)(t.u.object,"prototype",NULL,&t);
+	vm->Global->Prototype = t.u.object;
+	//Global->Class
+	vm->Global->Class = "Global";
+	
 	//NaN
-	struct JsValue* v = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	v = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	v->type = JS_NUMBER;
 	v->u.number = JS_VALUE_NUMBER_NAN;
 	(*vm->Global->Put)(vm->Global,"NaN",v,JS_OBJECT_ATTR_STRICT);
@@ -42,11 +55,13 @@ void JsECMAScriptObjectInit(struct JsVm* vm){
 	v->u.object->Call = &JsGlobalEval;
 	(*vm->Global->Put)(vm->Global,"eval",v,JS_OBJECT_ATTR_STRICT);
 }
+/*
+	相当于把string字符串放置在当前环境下执行.
+*/
 static	void JsGlobalEval(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
 
-	struct JsObject* saveThisObj;
 	int saveVarattr;
-	
+	//检查参数是否正确
 	if(argc <=0){
 		res->type =JS_UNDEFINED;
 		return;
@@ -59,9 +74,7 @@ static	void JsGlobalEval(struct JsObject *self, struct JsObject *thisobj, int ar
 	struct JsEngine* e = JsGetTlsEngine();
 	
 	//处理上下文
-	//Stack 和 scope 都为当前
-	saveThisObj = e->exec->thisObj;
-	e->exec->thisObj = (thisobj != NULL ? thisobj : e->jsVm->Global);
+	/*Stack, Scope, This 都使用当前Context*/
 	saveVarattr = e->exec->varattr;
 	e->exec->varattr = JS_OBJECT_ATTR_DEFAULT;
 	
@@ -75,7 +88,6 @@ static	void JsGlobalEval(struct JsObject *self, struct JsObject *thisobj, int ar
 		JsThrowString("SytaxError");
 	JsEval(e,ast,res);
 	//还原环境
-	e->exec->thisObj = saveThisObj;
 	e->exec->varattr = saveVarattr;
 	
 	//结果处理

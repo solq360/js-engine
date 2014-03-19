@@ -17,7 +17,7 @@ struct JsRecord{
 	jmp_buf* bp;
 	//复制当前的context
 	struct JsContext* cp;
-	//在这个记录上的还原点
+	//记录建立在该记录上的锁句柄
 	JsList locks;
 };
 struct JsException{

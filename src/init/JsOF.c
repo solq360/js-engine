@@ -17,12 +17,6 @@ static void JsObjectInit(struct JsObject* obj,struct JsObject* obj_proto,
 		struct JsObject* fun,struct JsObject* fun_proto);	
 static void JsObjectProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
 		struct JsObject* fun,struct JsObject* fun_proto);	
-static void JsFunctionInit(struct JsObject* obj,struct JsObject* obj_proto,
-		struct JsObject* fun,struct JsObject* fun_proto);
-static void JsFunctionProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
-		struct JsObject* fun,struct JsObject* fun_proto);	
-
-//***************************************************************//
 /*15.2.2.1*/
 static void JsObjectCall(struct JsObject *obj, struct JsObject *thisobj,
 			int argc, struct JsValue **argv, struct JsValue *res);
@@ -41,7 +35,13 @@ static void JsObjectProtoIsPrototypeOfCall(struct JsObject *obj, struct JsObject
 /*15.2.4.7*/
 static void JsObjectProtoPropertyIsEnumerableCall(struct JsObject *obj, struct JsObject *thisobj,
 			int argc, struct JsValue **argv, struct JsValue *res);
-			
+
+////////////////////////////////////////////////////////////////////////////////
+static void JsFunctionInit(struct JsObject* obj,struct JsObject* obj_proto,
+		struct JsObject* fun,struct JsObject* fun_proto);
+static void JsFunctionProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
+		struct JsObject* fun,struct JsObject* fun_proto);	
+		
 /*15.3.4*/
 static void JsFunctionProtoCall(struct JsObject *obj, struct JsObject *thisobj,
 			int argc, struct JsValue **argv, struct JsValue *res);			
@@ -62,7 +62,8 @@ void JsOFInit(struct JsVm* vm){
 	struct JsObject* obj_proto = JsCreateStandardObject(NULL);
 	
 	struct JsObject* fun = JsCreateStandardFunctionObject(NULL,NULL,TRUE);
-	struct JsObject* fun_proto = JsCreateStandardFunctionObject(NULL,NULL,TRUE);
+	//不存在construct和prototype属性
+	struct JsObject* fun_proto = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
 	
 	//预先配置他们的prototype属性, 给CreateObject类型函数使用
 	vPrototype = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
@@ -95,46 +96,6 @@ void JsOFInit(struct JsVm* vm){
 
 
 //---------------------------------
-
-static void JsFunctionInit(struct JsObject* obj,struct JsObject* obj_proto,
-		struct JsObject* fun,struct JsObject* fun_proto){
-	//Call 和 Constructor 没有写
-	fun->Prototype = fun_proto;
-	struct JsValue* vLength = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
-	vLength->type = JS_NUMBER;
-	vLength->u.number = 0; //default 1
-	(*fun->Put)(fun,"length",vLength,JS_OBJECT_ATTR_STRICT);
-}
-static void JsFunctionProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
-		struct JsObject* fun,struct JsObject* fun_proto){
-	struct JsValue* vProperty ;
-	fun_proto->Prototype = obj_proto;	
-	fun_proto->Call = &JsFunctionProtoCall;
-	//constructor
-	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
-	vProperty->type = JS_OBJECT;
-	vProperty->u.object = fun;
-	(*obj_proto->Put)(fun_proto,"constructor",vProperty,JS_OBJECT_ATTR_DONTENUM);
-	//toString
-	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
-	vProperty->type = JS_OBJECT;
-	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
-	vProperty->u.object->Call = &JsFunctionProtoToStringCall;
-	(*obj_proto->Put)(obj_proto,"toString",vProperty,JS_OBJECT_ATTR_DONTENUM);
-	//apply
-	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
-	vProperty->type = JS_OBJECT;
-	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
-	vProperty->u.object->Call = &JsFunctionProtoApplyCall;
-	(*obj_proto->Put)(obj_proto,"apply",vProperty,JS_OBJECT_ATTR_DONTENUM);
-	//call
-	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
-	vProperty->type = JS_OBJECT;
-	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
-	vProperty->u.object->Call = &JsFunctionProtoCallCall;
-	(*obj_proto->Put)(obj_proto,"call",vProperty,JS_OBJECT_ATTR_DONTENUM);
-}
-
 static void JsObjectInit(struct JsObject* obj,struct JsObject* obj_proto,
 		struct JsObject* fun,struct JsObject* fun_proto){
 	
@@ -188,6 +149,154 @@ static void JsObjectProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
 	vProperty->u.object->Call = &JsObjectProtoPropertyIsEnumerableCall;
 	(*obj_proto->Put)(obj_proto,"propertyIsEnumerable",vProperty,JS_OBJECT_ATTR_DONTENUM);
 }
+//------------------------------Object.prototype------------------------			
+/*15.2.2.1*/
+static void JsObjectCall(struct JsObject *obj, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+	if(argc > 0){
+		if(argv[0]->type == JS_OBJECT){
+			//TODO rule4
+			*res = *argv[0];
+			return;
+		}
+		if(argv[0]->type == JS_STRING ||argv[0]->type == JS_BOOLEAN 
+			|| argv[0]->type == JS_NUMBER){
+			JsToObject(argv[0],res);
+			return;
+		}
+	}
+	struct JsObject* t = JsCreateStandardObject(NULL);
+	res->type  = JS_OBJECT;
+	res->u.object = t;
+	return;
+}
+/*15.2.4.2*/
+static void JsObjectProtoToStringCall(struct JsObject *obj, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+	const char* Class = thisobj->Class;
+	int size = strlen(Class);
+	char* buf =(char*)JsMalloc(size+12);
+	sprintf(buf,"[object %s]",Class);
+	res->type = JS_STRING;
+	res->u.string = buf;
+}
+/*15.2.4.4*/
+static void JsObjectProtoValueOfCall(struct JsObject *obj, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+	res->type = JS_OBJECT;
+	res->u.object = thisobj == NULL?  JsGetVm()->Global : thisobj;
+}
+
+/*15.2.4.5*/			
+static void JsObjectProtoHasOwnPropertyCall(struct JsObject *obj, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+	struct JsValue v;
+	char* prop = "undefined";
+	
+	if(argc >0 ){
+		JsToString(argv[0],&v);
+		(*thisobj->HasOwnProperty)(thisobj,v.u.string,res);
+		prop = v.u.string;
+	}
+	(*thisobj->HasOwnProperty)(thisobj,prop,res);
+}
+/*15.2.4.6*/
+static void JsObjectProtoIsPrototypeOfCall(struct JsObject *obj, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+	struct JsObject* prototype;
+	
+	res->type = JS_BOOLEAN;
+	if(argc <= 0){
+		res->u.boolean = FALSE;
+	}
+	if(argv[0]->type != JS_OBJECT){
+		res->type = JS_BOOLEAN;
+		res->u.boolean = FALSE;
+		return ;
+	}
+	prototype = argv[0]->u.object->Prototype;
+	//循环查询
+	while(prototype != NULL){
+		if(prototype == thisobj){
+			res->type = JS_BOOLEAN;
+			res->u.boolean = TRUE;
+		}
+		//下一个对象的原形
+		prototype = prototype->Prototype;
+	}
+	//没有查询到
+	res->type = JS_BOOLEAN;
+	res->u.boolean = FALSE;
+}
+/*15.2.4.7*/
+static void JsObjectProtoPropertyIsEnumerableCall(struct JsObject *obj, struct JsObject *thisobj,
+			int argc, struct JsValue **argv, struct JsValue *res){
+
+	res->type = JS_BOOLEAN;
+	char* prop = "undefined";
+	int flag;
+	struct JsValue v;
+	//prop查询
+	if(argc >= 0){
+		JsToString(argv[0],&v);
+		prop = v.u.string;
+	}
+	
+	(*thisobj->HasOwnProperty)(thisobj,prop,&v);
+	if(v.u.boolean == TRUE){
+		//存在属性
+		(*thisobj->Get)(thisobj,prop,&flag,&v);
+		if(v.type == JS_UNDEFINED)
+			res->u.boolean = FALSE;
+		else
+			res->u.boolean = ((flag & JS_OBJECT_ATTR_DONTENUM) == 0);
+	}
+	//该对象不存在该属性
+	res->u.boolean = FALSE;
+}
+
+
+
+static void JsFunctionInit(struct JsObject* obj,struct JsObject* obj_proto,
+		struct JsObject* fun,struct JsObject* fun_proto){
+	//Call 和 Constructor 没有写
+	fun->Prototype = fun_proto;
+	struct JsValue* vLength = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	vLength->type = JS_NUMBER;
+	vLength->u.number = 0; //default 1
+	(*fun->Put)(fun,"length",vLength,JS_OBJECT_ATTR_STRICT);
+}
+static void JsFunctionProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
+		struct JsObject* fun,struct JsObject* fun_proto){
+	struct JsValue* vProperty ;
+	fun_proto->Prototype = obj_proto;	
+	fun_proto->Call = &JsFunctionProtoCall;
+	//constructor
+	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	vProperty->type = JS_OBJECT;
+	vProperty->u.object = fun;
+	(*obj_proto->Put)(fun_proto,"constructor",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	//toString
+	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	vProperty->type = JS_OBJECT;
+	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
+	vProperty->u.object->Call = &JsFunctionProtoToStringCall;
+	(*obj_proto->Put)(obj_proto,"toString",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	//apply
+	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	vProperty->type = JS_OBJECT;
+	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
+	vProperty->u.object->Call = &JsFunctionProtoApplyCall;
+	(*obj_proto->Put)(obj_proto,"apply",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	//call
+	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	vProperty->type = JS_OBJECT;
+	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
+	vProperty->u.object->Call = &JsFunctionProtoCallCall;
+	(*obj_proto->Put)(obj_proto,"call",vProperty,JS_OBJECT_ATTR_DONTENUM);
+}
+
+
 
 //-----------------------------------Function.prototype----------------------
 
@@ -200,6 +309,7 @@ static void JsFunctionProtoCall(struct JsObject *obj, struct JsObject *thisobj,
 /*15.3.4.2*/
 static void JsFunctionProtoToStringCall(struct JsObject *obj, struct JsObject *thisobj,
 			int argc, struct JsValue **argv, struct JsValue *res){
+	//根据this不同类型,  返回不同的String内容, 这里简单的放回一个空String
 	res->type =JS_STRING;
 	res->u.string = "function Empty(){}";
 }
@@ -218,26 +328,26 @@ static void JsFunctionProtoApplyCall(struct JsObject *obj, struct JsObject *this
 		argc0 = 0;
 		argv0 = NULL;
 	}else if(argc == 1){
-		if(argv[0]->type != JS_NULL && argv[0]->type != JS_UNDEFINED){
+		if(argv[0]->type == JS_NULL || argv[0]->type == JS_UNDEFINED){
+			this0 = JsGetVm()->Global;
+		}else{
 			struct JsValue o;
 			JsToObject(argv[0],&o);
 			this0 = o.u.object;
-		}else{
-			this0 = JsGetVm()->Global;
 		}
 		argc0 = 0;
 		argv0 = NULL;
 	}else if(argc >= 2){
 		//this
-		if(argv[0]->type != JS_NULL && argv[0]->type != JS_UNDEFINED){
+		if(argv[0]->type == JS_NULL || argv[0]->type == JS_UNDEFINED){
+			this0 = JsGetVm()->Global;
+		}else{
 			struct JsValue o;
 			JsToObject(argv[0],&o);
 			this0 = o.u.object;
-		}else{
-			this0 = JsGetVm()->Global;
 		}
 		//argc argv
-		if(argv[1]->type != JS_NULL && argv[1]->type != JS_UNDEFINED){
+		if(argv[1]->type == JS_NULL || argv[1]->type == JS_UNDEFINED){
 			argc0 = 0;
 			argv0 = NULL;
 		}else{
@@ -249,7 +359,7 @@ static void JsFunctionProtoApplyCall(struct JsObject *obj, struct JsObject *this
 			struct JsValue v ;
 			(*argv[1]->u.object->Get)(argv[1]->u.object,"length",NULL,&v);
 			if(v.type != JS_NUMBER){
-				JsThrowString("Array Length TypeError");
+				JsThrowString("TypeError");
 				return;
 			}
 			argc0 = v.u.number;
@@ -294,23 +404,23 @@ static void JsFunctionProtoCallCall(struct JsObject *obj, struct JsObject *thiso
 		argc0 = 0;
 		argv0 = NULL;
 	}else if(argc == 1){
-		if(argv[0]->type != JS_NULL && argv[0]->type != JS_UNDEFINED){
+		if(argv[0]->type == JS_NULL || argv[0]->type == JS_UNDEFINED){
+			this0 = JsGetVm()->Global;
+		}else{
 			struct JsValue o;
 			JsToObject(argv[0],&o);
 			this0 = o.u.object;
-		}else{
-			this0 = JsGetVm()->Global;
 		}
 		argc0 = 0;
 		argv0 = NULL;
 	}else if(argc >= 2){
 		//this
 		if(argv[0]->type != JS_NULL && argv[0]->type != JS_UNDEFINED){
+			this0 = JsGetVm()->Global;
+		}else{
 			struct JsValue o;
 			JsToObject(argv[0],&o);
 			this0 = o.u.object;
-		}else{
-			this0 = JsGetVm()->Global;
 		}
 		argc0 = argc - 1;
 		argv0 = &argv[1];
@@ -320,120 +430,5 @@ static void JsFunctionProtoCallCall(struct JsObject *obj, struct JsObject *thiso
 	}
 	(*obj->Call)(obj,this0,argc0,argv0,res);	
 }		
-//------------------------------Object.prototype------------------------			
-/*15.2.2.1*/
-static void JsObjectCall(struct JsObject *obj, struct JsObject *thisobj,
-			int argc, struct JsValue **argv, struct JsValue *res){
-	if(argc > 0){
-		if(argv[0]->type == JS_OBJECT){
-			//TODO rule4
-			*res = *argv[0];
-			return;
-		}
-		if(argv[0]->type == JS_STRING ||argv[0]->type == JS_BOOLEAN 
-			|| argv[0]->type == JS_NUMBER){
-			JsToObject(argv[0],res);
-			return;
-		}
-	}
-	struct JsObject* t = JsCreateStandardObject(NULL);
-	res->type  = JS_OBJECT;
-	res->u.object = t;
-	return;
-}
-/*15.2.4.2*/
-static void JsObjectProtoToStringCall(struct JsObject *obj, struct JsObject *thisobj,
-			int argc, struct JsValue **argv, struct JsValue *res){
-	const char* Class = thisobj->Class;
-	int size = strlen(Class);
-	char* buf =(char*)JsMalloc(size+12);
-	sprintf(buf,"[object %s]",Class);
-	res->type = JS_STRING;
-	res->u.string = buf;
-}
-/*15.2.4.4*/
-static void JsObjectProtoValueOfCall(struct JsObject *obj, struct JsObject *thisobj,
-			int argc, struct JsValue **argv, struct JsValue *res){
-	struct JsObject* t = JsCreateStandardObject(NULL);
-	res->type  = JS_OBJECT;
-	res->u.object = t;
-}
 
-/*15.2.4.5*/			
-static void JsObjectProtoHasOwnPropertyCall(struct JsObject *obj, struct JsObject *thisobj,
-			int argc, struct JsValue **argv, struct JsValue *res){
-	struct JsValue v;
-
-	res->type = JS_BOOLEAN;
-	if(argc>0){
-		JsToString(argv[0],&v);
-		if(v.type != JS_STRING){
-			*res = v;
-			return;
-		}
-		(*thisobj->HasOwnProperty)(thisobj,v.u.string,res);
-	}if(argc <= 0){
-		(*thisobj->HasOwnProperty)(thisobj,"undefined",res);
-	}else{
-		res->u.boolean = FALSE;
-	}
-}
-/*15.2.4.6*/
-static void JsObjectProtoIsPrototypeOfCall(struct JsObject *obj, struct JsObject *thisobj,
-			int argc, struct JsValue **argv, struct JsValue *res){
-	struct JsObject* prototype;
-	
-	res->type = JS_BOOLEAN;
-	if(argc <= 0){
-		res->u.boolean = FALSE;
-	}
-	if(argv[0]->type != JS_OBJECT){
-		res->type = JS_BOOLEAN;
-		res->u.boolean = FALSE;
-		return ;
-	}
-	prototype = argv[0]->u.object->Prototype;
-	//循环查询
-	while(prototype != NULL){
-		if(prototype == thisobj){
-			res->type = JS_BOOLEAN;
-			res->u.boolean = TRUE;
-		}
-		//下一个对象的原形
-		prototype = prototype->Prototype;
-	}
-	//没有查询到
-	res->type = JS_BOOLEAN;
-	res->u.boolean = FALSE;
-}
-/*15.2.4.7*/
-static void JsObjectProtoPropertyIsEnumerableCall(struct JsObject *obj, struct JsObject *thisobj,
-			int argc, struct JsValue **argv, struct JsValue *res){
-
-	res->type = JS_BOOLEAN;
-	char* prop = "undefined";
-	int flag;
-	struct JsValue v;
-	//prop查询
-	if(argc >= 0){
-		JsToString(argv[0],&v);
-		if(v.type != JS_STRING){
-			*res = v;
-			return;
-		}
-		prop = v.u.string;
-	}
-	
-	(*thisobj->HasOwnProperty)(thisobj,prop,&v);
-	if(v.type ==JS_BOOLEAN && v.u.boolean == TRUE){
-		//存在属性
-		(*thisobj->Get)(thisobj,prop,&flag,&v);
-		if(v.type == JS_UNDEFINED)
-			res->u.boolean = FALSE;
-		else
-			res->u.boolean = ((flag & JS_OBJECT_ATTR_DONTENUM) == 0);
-	}
-	//该对象不存在该属性
-	res->u.boolean = FALSE;
-}
 
