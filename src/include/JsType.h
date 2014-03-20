@@ -8,7 +8,7 @@ struct JsEngine;
 struct JsObject;
 struct JsValue;
 enum JsTraceEvent;
-
+struct JsLocation;
 //Sys
 #ifndef NULL
 	#define NULL  ((void *)0)
@@ -39,7 +39,7 @@ typedef void* JsLock;
 typedef void* (*JsThreadFn)(void* data);
 
 /* 调试函数指针 */
-typedef void (*JsVmTraceFn)(struct JsEngine* e,enum JsTraceEvent event);
+typedef void (*JsVmTraceFn)(struct JsEngine* e,struct JsLocation* l, enum JsTraceEvent event);
 
 /*上下文任务*/
 typedef void (*JsContextTaskFn)(struct JsEngine* e);
@@ -123,13 +123,14 @@ typedef void (*JsObjectDefaultValueFn)(struct JsObject *self,int type, struct Js
 	
 	example:
 		JsIter iter;
-		struct JsObject* next;
-		next = (next->NextValue)JsObjectNextValueFn(next,&iter,FALSE,res);
-		while(next != NULL){
-			next = (next->NextValue)JsObjectNextValueFn(next,&iter,FALSE,res);
-			//do something in res
+		//必须有新指针
+		struct JsObject* next = &Object;
+		char* prop = (*next->NextValue)(&next,&iter,FALSE);
+		while(prop != NULL && *next != NULL){
+			//do something
+			prop = (*next->NextValue)(&next,&iter,TRUE);
 		}
 */
-typedef struct JsObject* (*JsObjectNextValueFn)(struct JsObject* self, JsIter* iter,int initialized,struct JsValue* res);
+typedef char* (*JsObjectNextValueFn)(struct JsObject** next, JsIter* iter,int initialized);
 
 #endif

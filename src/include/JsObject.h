@@ -116,7 +116,7 @@ void JsStandardHasProperty( struct JsObject *self, char *prop,struct JsValue* re
 void JsStandardDelete( struct JsObject *self,  char *prop,struct JsValue* res);
 void JsStandardDefaultValue( struct JsObject *self, int hint, struct JsValue *res);
 void JsStandardHasOwnProperty( struct JsObject *self, char *prop,struct JsValue* res);
-struct JsObject*  JsStandardNextValue(struct JsObject* self, JsIter* piter,int initialized, struct JsValue* res);
+char* JsStandardNextValue(struct JsObject** next, JsIter* iter,int initialized);
 
 void JsStandardConstruct(struct JsObject *self, struct JsObject *thisobj,int argc, struct JsValue **argv, struct JsValue *res);
 void JsStandardCall(struct JsObject *self, struct JsObject *thisobj,int argc, struct JsValue **argv, struct JsValue *res);
@@ -127,7 +127,7 @@ void JsDarkGet(struct JsObject *self, char *prop,int* flag, struct JsValue *res)
 void JsDarkPut(struct JsObject *self,char *prop, struct JsValue *value, int flags);
 void JsDarkBoolean(struct JsObject *self,char *prop,struct JsValue* res);
 void JsDarkDefaultValueFn(struct JsObject *self,int type, struct JsValue *res);
-struct JsObject* JsDarkNextValueFn(struct JsObject* self, JsIter* iter,int initialized,struct JsValue* res);
+char* JsDarkNextValueFn(struct JsObject** next, JsIter* iter,int initialized);
 void JsDarkCall(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res);
 void JsDarkHasInstance(struct JsObject *self, struct JsValue *instance, struct JsValue* res);
 

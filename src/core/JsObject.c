@@ -229,7 +229,7 @@ void JsDarkHasInstance(struct JsObject *self, struct JsValue *instance,struct Js
 void JsDarkDefaultValueFn(struct JsObject *self,int type, struct JsValue *res){
 	JsThrowString("TypeError");
 }
-struct JsObject* JsDarkNextValueFn(struct JsObject* self, JsIter* iter,int initialized,struct JsValue* res){
+char* JsDarkNextValueFn(struct JsObject** next, JsIter* iter,int initialized){
 	JsThrowString("TypeError");
 	return NULL;
 }
@@ -264,20 +264,22 @@ void JsStandardGet(struct JsObject *self, char *prop,int* flag, struct JsValue *
 
 }
 				
-void JsStandardPut(struct JsObject *self, char *prop, struct JsValue *val, int flags){
+void JsStandardPut(struct JsObject *self, char *prop, struct JsValue *val0, int flags){
 	int i,size;
 	struct JsProperty* p;
 	struct JsStandardSelfBlock* sb;
 	struct JsValue v;
 	sb = (struct JsStandardSelfBlock*)self->sb[JS_STANDARD_OBJECT_FLOOR];
-	JsAssert(val != NULL);
+	JsAssert(val0 != NULL);
 	JsLockup(sb->lock);
 	(*self->CanPut)(self,prop,&v);
 	if(v.u.boolean  == FALSE){
 		JsUnlock(sb->lock);
 		return;
 	}
-	
+	//拷贝指针指向的内存
+	struct JsValue* val = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	*val = *val0;
 	size = JsListSize(sb->propertys);
 	for(i=0;i<size;++i){
 		p = (struct JsProperty*)JsListGet(sb->propertys,i);
@@ -451,7 +453,7 @@ void JsStandardHasOwnProperty(struct JsObject *self, char *prop,struct JsValue* 
 				
 }		
 
-struct JsObject* JsStandardNextValue( struct JsObject* self, JsIter* piter,int initialized, struct JsValue* res){
+char* JsStandardNextValue(struct JsObject** next, JsIter* piter,int initialized){
 	
 	struct JsStandardSelfBlock* sb;
 	struct JsIterator* iter;
@@ -459,13 +461,13 @@ struct JsObject* JsStandardNextValue( struct JsObject* self, JsIter* piter,int i
 	
 	//初始化阶段
 	if(initialized == FALSE){
-		sb = (struct JsStandardSelfBlock*) self->sb[JS_STANDARD_OBJECT_FLOOR];
+		sb = (struct JsStandardSelfBlock*) (*next)->sb[JS_STANDARD_OBJECT_FLOOR];
 		JsLockup(sb->lock);
 		iter = (struct JsIterator*) JsMalloc(sizeof(struct JsIterator));
 		iter->useable = TRUE;
 		iter->pos = -1;
 		iter->size = JsListSize(sb->propertys);
-		iter->obj = self;
+		iter->obj = (*next);
 		JsListPush(sb->iterators,iter);
 		//添加该迭代器在obj中的位置
 		iter->slot = JsListSize(sb->iterators) - 1;
@@ -478,9 +480,7 @@ struct JsObject* JsStandardNextValue( struct JsObject* self, JsIter* piter,int i
 	JsAssert(piter != NULL && *piter != NULL);
 	
 	iter = *piter;
-	//默认为JS_UNDEINFED;
-	res->type = JS_UNDEFINED;
-
+	
 	if(iter->useable == FALSE){
 		JsThrowString("Iterator Throw Error");
 		return NULL;
@@ -496,11 +496,11 @@ struct JsObject* JsStandardNextValue( struct JsObject* self, JsIter* piter,int i
 		p = (struct JsProperty*) JsListGet(sb->propertys,iter->pos);
 		if(p->attr & JS_OBJECT_ATTR_DONTENUM)
 			continue;
-		res->type = JS_STRING;
-		res->u.string = p->name;
+		char* name = p->name;
 		//解锁
 		JsUnlock(sb->lock);
-		return self;
+		//找到符合条件的name
+		return name;
 	}
 	//该对象已经循环完毕
 	//从对象上删除它
@@ -509,12 +509,15 @@ struct JsObject* JsStandardNextValue( struct JsObject* self, JsIter* piter,int i
 	iter->useable = FALSE;
 	//修改对象
 	iter->obj = iter->obj->Prototype;
+	//修改next指针
+	*next = iter->obj;
+	
 	iter->pos = -1;
 	JsUnlock(sb->lock);
 
 	if(iter->obj == NULL)
 		return NULL;
-	return (*iter->obj->NextValue)(iter->obj,piter, FALSE,res);
+	return (*iter->obj->NextValue)(&iter->obj,piter, FALSE);
 }
 /* 和standard 函数连用*/
 void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,

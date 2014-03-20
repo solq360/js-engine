@@ -15,7 +15,7 @@
 static struct JsVm* g_JsVm = NULL;
 
 //-----------------------------------------------
-static void jsVmTrace(struct JsEngine* jsEngine,enum JsTraceEvent jsTraceEvent);
+static void jsVmTrace(struct JsEngine* jsEngine,struct JsLocation* l,enum JsTraceEvent jsTraceEvent);
 static void jsLoadModule(struct JsVm* vm);
 
 //------------------------------------------------
@@ -64,7 +64,7 @@ struct JsVm* JsGetVm(){
 	return g_JsVm;
 }
 //-------------------------
-static void jsVmTrace(struct JsEngine* jsEngine,enum JsTraceEvent event){
+static void jsVmTrace(struct JsEngine* jsEngine,struct JsLocation* l,enum JsTraceEvent event){
 	
 }
 static void jsLoadModule(struct JsVm* vm){
