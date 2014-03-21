@@ -9,7 +9,7 @@
 #include<string.h>
 #include<stdio.h>
 #include<stdlib.h>
-
+#include<math.h>
 
 
 
@@ -117,7 +117,7 @@ unsigned int JsToUint32(struct JsValue *val){
 		|| i.u.number == 0.0)
 		return 0;
 	else {
-		i.u.number = (int) i.u.number % 4294967296; /* 2^32 */
+		i.u.number = fmod(i.u.number ,4294967296.0); /* 2^32 */
 		if (i.u.number < 0)
 			i.u.number += 4294967296;
 		return (unsigned int)i.u.number;
@@ -132,7 +132,7 @@ unsigned short JsToUint16(struct JsValue *val){
 		|| i.u.number == 0.0)
 		return 0;
 	else {
-		i.u.number = (int)i.u.number % 65536;	/* 2^16 */
+		i.u.number = fmod(i.u.number, 65536.0);	/* 2^16 */
 		if (i.u.number < 0)
 			i.u.number  +=  65536.0;
 		return (unsigned short)i.u.number;

@@ -372,8 +372,7 @@ static void JsFunctionProtoApplyCall(struct JsObject *obj, struct JsObject *this
 				number /=10;
 				size++;
 			}
-			size += 4;
-			char* buf = (char*)JsMalloc(size);
+			char* buf = (char*)JsMalloc(size + 4);
 			//组建Argv0
 			for(i =0 ; i < argc0;++i){
 				sprintf(buf,"%d",i);

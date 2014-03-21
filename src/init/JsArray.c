@@ -80,7 +80,7 @@ static struct JsObject* JsCreateArray(struct JsObject* prototype, int length, st
 			number /=10;
 			bit++;
 		}
-		char* buf = (char*)JsMalloc(bit);
+		char* buf = (char*)JsMalloc(bit+4);
 		sprintf(buf,"%d",i);
 		(*array->Put)(array,buf,argv[i],JS_OBJECT_ATTR_DEFAULT);
 	}
@@ -312,7 +312,7 @@ static void JsArrayInstPut(struct JsObject *self,char *prop, struct JsValue *val
 					number /=10;
 					bit++;
 				}
-				char* buf = (char*)JsMalloc(bit);
+				char* buf = (char*)JsMalloc(bit+4);
 				sprintf(buf,"%d",i);
 				//删除不在新范围内的数组元素
 				(*self->Delete)(self,buf,&v0);

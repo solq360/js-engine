@@ -639,8 +639,7 @@ static struct JsValue* jsCreateArguments(struct JsObject* fun,int argc, struct J
 			number /=10;
 			size++;
 		}
-		size += 2;
-		char* buf = (char*)JsMalloc(size);
+		char* buf = (char*)JsMalloc(size + 4);
 		sprintf(buf,"%d",i);
 		(*argumentsObj->Put)(argumentsObj,buf,argv[i],JS_OBJECT_ATTR_DONTENUM);
 	}
