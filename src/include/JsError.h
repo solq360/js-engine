@@ -14,37 +14,49 @@
 */
 struct JsValue;
 /*
-	*因为命名的原因, 一个函数只能使用一个TRY
-	
-	基本使用方法
 	#include<setjmp.h>
 	
-	JS_TRY{
+	JS_TRY(0){
 		可以放置表达式(函数调用, 赋值,...)
 		如果使用return , break 语句则需要在之前调用JsOmitPoint()
 		
 	}
 	doFinally工作
-	JS_CATCH{
-		JsValue* e = JsGetError();
-		1. 处理错误, 最后执行	
+	struct JsValue* e = NULL;
+	JS_CATCH(e){
+		1. 处理错误
+		2. 继续抛出异常
+			JsThrow(e);
+	
+	}
+	JS_TRY(1){
+		可以放置表达式(函数调用, 赋值,...)
+		如果使用return , break 语句则需要在之前调用JsOmitPoint()
+		
+	}
+	doFinally工作
+	struct JsValue* e = NULL;
+	JS_CATCH(e){
+		1. 处理错误
 		2. 继续抛出异常
 			JsThrow(e);
 	
 	}
 */
-#define JS_TRY \
-	int done_1234567890_abcdefg; \
-	jmp_buf* jmp_buf_1234567890_abcdefg = (jmp_buf*)JsMalloc(sizeof(jmp_buf)); \
-	for(done_1234567890_abcdefg = 0;  \
-		done_1234567890_abcdefg == 0 \
-		&& (setjmp(*jmp_buf_1234567890_abcdefg) == 0 \
-			?(JsBuildRecord(jmp_buf_1234567890_abcdefg),1) \
-			: (JsOmitRecord(),0));  \
-		++done_1234567890_abcdefg, JsOmitRecord()) 
+/*一个函数中mark都要不同*/
+#define JS_TRY(mark) \
+	int done_mark; \
+	jmp_buf* jmp_buf_mark = (jmp_buf*)JsMalloc(sizeof(jmp_buf)); \
+	for(done_mark = 0; \
+	    done_mark == 0 && (setjmp(*jmp_buf_mark) == 0 ? \
+			(JsBuildRecord(jmp_buf_mark),1) : (JsOmitRecord(),0));  \
+		++done_mark, JsOmitRecord())
+
+/*Catch之后, 异常已经被清除了*/
+#define JS_CATCH(e) \
+		if((e = JsGetError()))
 		
-#define JS_CATCH \
-		if(JsGetError())
+		
 /****************************************************************************
 									通用API
 *****************************************************************************/
@@ -65,10 +77,12 @@ void JsPushLockToRecord(JsLock lock);
 //解锁的时候,  把给定的锁从最后面扫描, 剔除
 void JsPopLockInRecord(JsLock lock);
 
+//检查当前环境是否存在异常, 当并不清除错误
+int JsCheckError();
 //在环境中删除一个最近的还原点
 void JsOmitRecord();
 
-//获得当前错误, 并且清空, 如果没有则返回NULL
+//获得当前错误, 并且清除当前错误, 如果没有则返回NULL
 struct JsValue* JsGetError();
 
 //设置一个错误, NULL表示清除错误

@@ -125,6 +125,11 @@ void JsOmitPoint(){
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 	JsListRemove(p->records,JS_LIST_END);
 }
+int JsCheckError(){
+	checkInitTls();
+	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	return p->err != NULL;
+}
 //获得当前错误
 struct JsValue* JsGetError(){
 	checkInitTls();
@@ -132,7 +137,6 @@ struct JsValue* JsGetError(){
 	struct JsValue* e = p->err;
 	p->err = NULL;
 	return e;
-
 }
 void JsSetError(struct JsValue* v){
 	checkInitTls();

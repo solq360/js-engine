@@ -74,11 +74,12 @@ void JsDispatch(struct JsContext* c){
 		struct JsContext* tlsContext = JsGetTlsContext();
 		JsSetTlsEngine(e);
 		JsSetTlsContext(e->exec);
-		JS_TRY{
+		JS_TRY(0){
 			(*e->exec->task)(e);
-		}JS_CATCH{
-			//简单的清除错误
-			JsGetError();
+		}
+		struct JsValue* error = NULL;
+		JS_CATCH(error){
+			//NONE
 		}
 		//还原环境
 		JsSetTlsEngine(tlsEngine);
