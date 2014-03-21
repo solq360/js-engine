@@ -126,7 +126,7 @@ typedef void (*JsObjectDefaultValueFn)(struct JsObject *self,int type, struct Js
 		//必须有新指针
 		struct JsObject* next = &Object;
 		char* prop = (*next->NextValue)(&next,&iter,FALSE);
-		while(prop != NULL && *next != NULL){
+		while(prop != NULL && next != NULL){
 			//do something
 			prop = (*next->NextValue)(&next,&iter,TRUE);
 		}
