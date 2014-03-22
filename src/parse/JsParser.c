@@ -1,3 +1,7 @@
+/*
+	参考ECMAScript 3rd 语法, 使用LL(1) 变种机制(加入了parser控制)
+*/
+
 #include<stdlib.h>
 #include<string.h>
 #include<stdio.h>
