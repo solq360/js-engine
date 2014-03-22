@@ -53,9 +53,9 @@ void JsPrevInitContext();
 void JsPostInitContext();
 /*
 	创建新的JsContext
-	如果 c == NULL,则配置为全局Context
+	如果 c == NULL, 则配置为全局Context类型
 	否则 拷贝c
-	最后把该context注册到JsEngine中
+	*最后把该context注册到JsEngine中
 */
 struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c, 
 			JsContextTaskFn taskFn, void* data);
@@ -64,7 +64,7 @@ struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c,
 	创建新的JsContext
 	如果 c == NULL,则配置为全局Context
 	否则 拷贝c
-	纯粹的拷贝context, 不进行注册.
+	*纯粹的拷贝context, 不进行注册到JsEngine中.
 */	
 struct JsContext* JsCopyContext(struct JsContext* c);	
 /*
