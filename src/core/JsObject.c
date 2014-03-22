@@ -551,7 +551,7 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	e->exec->scope = newScope;
 	
 	saveThisObj = e->exec->thisObj;
-	e->exec->thisObj = (thisobj != NULL ? thisobj : e->jsVm->Global);
+	e->exec->thisObj = (thisobj != NULL ? thisobj : e->vm->Global);
 	
 	saveVarattr = e->exec->varattr;
 	e->exec->varattr = JS_OBJECT_ATTR_DONTDELETE;

@@ -27,9 +27,16 @@ struct JsException{
 
 static JsTlsKey eKey = NULL;
 static void JsTlsClose(void *data);
-static void checkInitTls();
+static void JsInitTlsKey();
 
 //------------------------------------------------------------------
+void JsPrevInitError(){
+	JsInitTlsKey();
+}
+void JsPostInitError(){
+
+
+}
 
 void JsThrowString(char* msg){
 	struct JsValue* e =(struct JsValue*) JsMalloc(sizeof(struct JsValue));
@@ -68,8 +75,14 @@ void JsThrow(struct JsValue* e){
 }
 //创建一个还原点
 void JsBuildRecord(void* jmp_buf_p){
-	checkInitTls();
+
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if( p == NULL){
+		p = (struct JsException* )JsMalloc(sizeof(struct JsException));
+		JsListInit(&p->records);
+		p->err = NULL;
+		JsSetTlsValue(eKey,p);
+	}
 	struct JsRecord* r = (struct JsRecord*)JsMalloc(sizeof(struct JsRecord));
 	//还原点
 	r->bp = (jmp_buf*)jmp_buf_p;
@@ -87,9 +100,10 @@ void JsBuildRecord(void* jmp_buf_p){
 }
 //每次加锁的时候, 把对应的锁添加到最近还原点的上下文中
 void JsPushLockToRecord(JsLock lock){
-	checkInitTls();
-	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 
+	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if(p == NULL)
+		return;
 	//获得最近的记录
 	struct JsRecord* r = (struct JsRecord*)JsListGet(p->records,JS_LIST_END);
 	if(r == NULL)
@@ -100,9 +114,10 @@ void JsPushLockToRecord(JsLock lock){
 
 //解锁的时候,  把给定的锁从最后面扫描, 剔除
 void JsPopLockInRecord(JsLock lock){
-	checkInitTls();
-	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 
+	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if(p == NULL)
+		return;
 	//获得最近的记录
 	struct JsRecord* r = (struct JsRecord*)JsListGet(p->records,JS_LIST_END);
 	if(r == NULL)
@@ -121,44 +136,44 @@ void JsPopLockInRecord(JsLock lock){
 }
 //删除一个最近的还原点
 void JsOmitPoint(){
-	checkInitTls();
+	
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if(p == NULL)
+		return;
 	JsListRemove(p->records,JS_LIST_END);
 }
 int JsCheckError(){
-	checkInitTls();
+
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if(p == NULL)
+		return FALSE;
 	return p->err != NULL;
 }
 //获得当前错误
 struct JsValue* JsGetError(){
-	checkInitTls();
+
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if(p == NULL)
+		return NULL;
 	struct JsValue* e = p->err;
 	p->err = NULL;
 	return e;
 }
 void JsSetError(struct JsValue* v){
-	checkInitTls();
+
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
+	if(p == NULL)
+		return;
 	p->err = v;
 }
 
-static void checkInitTls(){
-	if(eKey == NULL){
-		JsGLock();
-		if(eKey == NULL){
-			eKey = JsCreateTlsKey(JsTlsClose);
-			struct JsException* p = (struct JsException* )JsMalloc(sizeof(struct JsException));
-			JsListInit(&p->records);
-			p->err = NULL;
-			JsSetTlsValue(eKey,p);
-		}
-		JsGUnlock();
-	}
+static void JsInitTlsKey(){
+	eKey = JsCreateTlsKey(JsTlsClose);
 }
 static void JsTlsClose(void *data){
 	struct JsException* p = data;
-	p->records = NULL;
-	p->err = NULL;
+	if( p != NULL){
+		p->records = NULL;
+		p->err = NULL;
+	}
 }

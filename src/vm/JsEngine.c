@@ -11,14 +11,24 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+
 //当前线程的engine对象的key
 static JsTlsKey engineKey = NULL;
-static void checkEngineKey();
-//--------------------------------------------------------
+static void JsInitEngineKey();
+
+
+
+void JsPrevInitEngine(){
+	JsInitEngineKey();
+}
+void JsPostInitEngine(){
+
+}
+
 struct JsEngine* JsCreateEngine(){
-	struct JsVm* jsVm = JsGetVm();
+	struct JsVm* vm = JsGetVm();
 	struct JsEngine* e = (struct JsEngine*)JsMalloc(sizeof(struct JsEngine));
-	e->jsVm = jsVm;
+	e->vm = vm;
 	JsEngine2Vm(e);
 	
 	e->state = JS_ENGINE_KERNEL;
@@ -37,8 +47,8 @@ void JsDispatch(struct JsContext* c){
 	if(c == NULL)
 		return;
 	struct JsEngine* e = c->engine;
-	if(e == NULL || e->jsVm == NULL 
-		|| e->state ==JS_ENGINE_STOPPED || e->jsVm->state == JS_VM_HALT)
+	if(e == NULL || e->vm == NULL 
+		|| e->state ==JS_ENGINE_STOPPED || e->vm->state == JS_VM_HALT)
 		return;
 //添加到wait队列中
 	JsLockup(e->lock);
@@ -136,23 +146,13 @@ void JsStopEngine(struct JsEngine* e){
 }
 /*获得当前线程Engine*对象*/
 void JsSetTlsEngine(struct JsEngine* e){
-	checkEngineKey();
 	JsSetTlsValue(engineKey,e);
 }
 struct JsEngine* JsGetTlsEngine(){
 	struct JsEngine* e;
-	checkEngineKey();
 	e = (struct JsEngine*)JsGetTlsValue(engineKey);
 	return e;
 }
-static void checkEngineKey(){
-	if(engineKey == NULL){
-		JsGLock();
-		if(engineKey == NULL){
-			//初始化key
-			engineKey = JsCreateTlsKey(NULL);
-			//不需要配置具体的Value
-		}
-		JsGUnlock();
-	}
+static void JsInitEngineKey(){
+	engineKey = JsCreateTlsKey(NULL);
 }

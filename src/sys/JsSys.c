@@ -16,7 +16,15 @@
 pthread_mutex_t globalLock = PTHREAD_MUTEX_INITIALIZER;
 //配置一个程序内部使用, 可以计数的锁的属性
 static pthread_mutexattr_t* lock_attr = NULL;;
-static void checkLockAttr();
+static void JsInitLockAttr();
+
+
+void JsPrevInitSys(){
+	JsInitLockAttr();	
+}
+void JsPostInitSys(){
+
+}
 
 void JsGLock(){
 	//记录到还原点上
@@ -30,7 +38,6 @@ void JsGUnlock(){
 }
 
 void JsCreateLock(JsLock* lock){
-	checkLockAttr();
 	pthread_mutex_t* a = (pthread_mutex_t*) JsMalloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(a,lock_attr);
 	*lock = (JsLock)a;
@@ -112,19 +119,10 @@ void* JsGetTlsValue(JsTlsKey key){
 	return pthread_getspecific( *(pthread_key_t*)key);
 }
 
-
-
-//----------------------------------------------------------------
-static void checkLockAttr(){
-	if(!lock_attr){
-		JsGLock();
-		if(!lock_attr){
-			lock_attr = (pthread_mutexattr_t*) JsMalloc(sizeof(pthread_mutexattr_t));
-			pthread_mutexattr_init(lock_attr);
-			pthread_mutexattr_setpshared(lock_attr, PTHREAD_PROCESS_PRIVATE);
-			pthread_mutexattr_settype(lock_attr ,PTHREAD_MUTEX_RECURSIVE);
-		}
-		//解锁
-		JsGUnlock();
-	}
+/****************************************************************/
+static void JsInitLockAttr(){
+	lock_attr = (pthread_mutexattr_t*) JsMalloc(sizeof(pthread_mutexattr_t));
+	pthread_mutexattr_init(lock_attr);
+	pthread_mutexattr_setpshared(lock_attr, PTHREAD_PROCESS_PRIVATE);
+	pthread_mutexattr_settype(lock_attr ,PTHREAD_MUTEX_RECURSIVE);
 }

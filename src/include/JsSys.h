@@ -8,6 +8,11 @@ struct JsContext;
 /****************************************************************************
 									通用API
 *****************************************************************************/
+//模块初始化API
+void JsPrevInitSys();
+void JsPostInitSys();
+
+
 /*加锁解锁会注册该锁到还原点上下文*/
 /*锁 API*/
 void JsCreateLock(JsLock* lock);
@@ -42,4 +47,6 @@ void* JsReAlloc(void* mem,int newSize);
 JsTlsKey JsCreateTlsKey(JsTlsFn fn);
 void JsSetTlsValue(JsTlsKey key, void* value);
 void* JsGetTlsValue(JsTlsKey key);
+
+
 #endif

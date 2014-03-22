@@ -13,10 +13,20 @@
 
 //当前线程的context对象的key
 static JsTlsKey key = NULL;
-static void checkKey();
+static void JsInitContextTlsKey();
+
+//模块初始化API
+void JsPrevInitContext(){
+	JsInitContextTlsKey();
+}
+void JsPostInitContext(){
+
+}
+
 
 struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c, 
 			JsContextTaskFn task, void* data){
+			
 	struct JsContext* context;
 	JsAssert(e != NULL);
 	JsAssert(task != NULL);
@@ -128,24 +138,15 @@ void JsFindValue(struct JsContext* c, char* name,struct JsValue* res){
 
 /*获得当前线程Context*对象*/
 void JsSetTlsContext(struct JsContext* c){
-	checkKey();
+
 	JsSetTlsValue(key,c);
 
 }
 struct JsContext* JsGetTlsContext(){
 	struct JsContext* c;
-	checkKey();
 	c = (struct JsContext*)JsGetTlsValue(key);
 	return c;
 }
-static void checkKey(){
-	if(key == NULL){
-		JsGLock();
-		if(key == NULL){
-			//初始化key
-			key = JsCreateTlsKey(NULL);
-			//不需要配置具体的Value
-		}
-		JsGUnlock();
-	}
+static void JsInitContextTlsKey(){
+	key = JsCreateTlsKey(NULL);
 }

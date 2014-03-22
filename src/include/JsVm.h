@@ -35,8 +35,8 @@ struct JsVm{
 *****************************************************************************/
 /*
 	一个进程只能有一个VM, 且该API在main线程中调用
-	创建一个新的VM, 初始化Global对象, 以及加载输入的模块, 配置一个调试函数,
-	如果没有则默认一个空的调试函数.
+	创建一个新的VM, 初始化Global对象, 以及加载输入的模块(DLL, SO)
+	还有两个init函数, 用于初始化PrevVm 和 PostVm模块的初始化.
 */
 struct JsVm* JsCreateVm(int debug,int mSize, char** mPath, JsVmTraceFn traceFn);
 /*

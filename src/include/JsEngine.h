@@ -13,7 +13,7 @@ struct JsContext;
 	一个Engin代表一个执行单元
 */
 struct JsEngine{
-	struct JsVm* jsVm;
+	struct JsVm* vm;
 	enum{
 		JS_ENGINE_RUNNING,//运行Source中
 		JS_ENGINE_STOPPED,//被关闭后, 不会再启动
@@ -33,6 +33,9 @@ struct JsEngine{
 /****************************************************************************
 									通用API
 *****************************************************************************/
+//模块初始化API
+void JsPrevInitEngine();
+void JsPostInitEngine();
 /*
 	创建一个Engine, 初始化各个属性, state = JS_ENGINE_KERNEL
 */
