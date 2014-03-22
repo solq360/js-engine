@@ -233,6 +233,7 @@ static void UnaryExpression_typeof_eval_common(struct JsContext *,
 		struct JsValue *, struct JsValue *);
 static void UnaryExpression_inv_eval_common(struct JsContext *,
 		struct JsValue *, struct JsValue *);
+static void JsFunctionCall(struct JsEngine* e,void* data,struct JsValue* res);
 
 //JsAstClassEnum 对应的处理函数
 static void (*JsNodeClassEval[NODECLASS_MAX])(struct JsAstNode* ,
@@ -685,11 +686,11 @@ IterationStatement_forin_eval(na, context, res)
 	//必须有新指针
 	struct JsObject* next = r3.u.object;
 	char* prop = (*next->NextValue)(&next,&iter,FALSE);
-	while(prop != NULL && next != NULL){
+	for(; prop != NULL && next != NULL;prop = (*next->NextValue)(&next,&iter,TRUE)){
 		
 		(*r3.u.object->HasProperty)(r3.u.object,prop,&v0);
 		if(v0.u.boolean == FALSE)
-		    goto NextProp;	/* property was deleted! */
+		    continue;	/* property was deleted! */
 	    r5.type = JS_STRING;
 		r5.u.string = prop;
 		
@@ -704,9 +705,6 @@ IterationStatement_forin_eval(na, context, res)
 		    continue;
 	    if (res->u.completion.type != JS_COMPLETION_NORMAL)
 		    return;
-NextProp:
-		//下一个属性
-		prop = (*next->NextValue)(&next,&iter,TRUE);
 	}
 	JS_SET_COMPLETION(res, JS_COMPLETION_NORMAL, v);
 }
@@ -738,11 +736,11 @@ IterationStatement_forvarin_eval(na, context, res)
 	//必须有新指针
 	struct JsObject* next = r4.u.object;
 	char* prop = (*next->NextValue)(&next,&iter,FALSE);
-	while(prop != NULL && next != NULL){
+	for(;prop != NULL && next != NULL; prop = (*next->NextValue)(&next,&iter,TRUE)){
 		
 		(*r4.u.object->HasProperty)(r4.u.object,prop,&v0);
 		if(v0.u.boolean == FALSE)
-		    goto NextProp;	/* property was deleted! */
+		    continue;	/* property was deleted! */
 	    r6.type = JS_STRING;
 		r6.u.string = prop;
 		
@@ -758,8 +756,6 @@ IterationStatement_forvarin_eval(na, context, res)
 		    continue;
 	    if (res->u.completion.type != JS_COMPLETION_NORMAL)
 		    return;
-NextProp:
-		prop = (*next->NextValue)(&next,&iter,TRUE);
 	}
 	JS_SET_COMPLETION(res, JS_COMPLETION_NORMAL, v);
 }
@@ -891,7 +887,9 @@ ThrowStatement_eval(na, context, res)
 {
 	struct JsAstUnaryNode *n = CAST_NODE(na, JsAstUnaryNode);
 	struct JsValue r1, *r2;
+	
 	r2 = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	
 	TRACE(na->location, context, JS_TRACE_STATEMENT);
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, r2);
@@ -1657,7 +1655,7 @@ ShiftExpression_urshift_common(r2, r4, context, res)
 	struct JsValue *r2, *r4, *res;
 	struct JsContext *context;
 {
-	int r5, r6;
+	unsigned int r5, r6;
 
 	r5 = JsToUint32(r2);
 	r6 = JsToUint32(r4);
@@ -2482,14 +2480,22 @@ FunctionBody_eval(na, context, res)
 	struct JsValue *res;
 {
 	struct JsAstFunctionBodyNode *n = CAST_NODE(na, JsAstFunctionBodyNode);
+	struct JsValue v;
 
-
-	EVAL(n->u.a, context, res);
+	EVAL(n->u.a, context, &v);
 	//SourceElememts 运行结果只有JS_COMPLETION类型
-	JsAssert(res->type == JS_COMPLETION);
+	JsAssert(v.type == JS_COMPLETION);
 	//throw 直接抛出, 不会出现在这里
-	JsAssert(res->u.completion.type == JS_COMPLETION_NORMAL 
-		|| res->u.completion.type == JS_COMPLETION_RETURN);
-		
+	JsAssert(v.u.completion.type == JS_COMPLETION_NORMAL 
+		|| v.u.completion.type == JS_COMPLETION_RETURN);
+	
+	
+	//处理Res
+	if(v.u.completion.type == JS_COMPLETION_NORMAL ||
+		v.u.completion.value == NULL)
+		//return ; 或者 没有return
+		res->type = JS_UNDEFINED;
+	else
+		*res = *v.u.completion.value;
 }
 
