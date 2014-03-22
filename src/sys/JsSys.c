@@ -27,13 +27,9 @@ void JsPostInitSys(){
 }
 
 void JsGLock(){
-	//记录到还原点上
-	JsPushLockToRecord((JsLock)&globalLock);
 	pthread_mutex_lock(&globalLock);
 }
 void JsGUnlock(){
-	//从还原记录上下文中删除该锁
-	JsPopLockInRecord((JsLock)&globalLock);
 	pthread_mutex_unlock(&globalLock);
 }
 
@@ -44,14 +40,10 @@ void JsCreateLock(JsLock* lock){
 }
 void JsLockup(JsLock lock){
 	JsAssert(lock != NULL);
-	//记录到还原点上
-	JsPushLockToRecord(lock);
 	pthread_mutex_lock((pthread_mutex_t*)lock);
 }
 void JsUnlock(JsLock lock){
 	JsAssert(lock != NULL);
-	//从还原记录上下文中删除该锁
-	JsPopLockInRecord(lock);
 	pthread_mutex_unlock((pthread_mutex_t*)lock);  
 }
 void JsDestroyLock(JsLock* lock){

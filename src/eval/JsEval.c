@@ -895,7 +895,7 @@ ThrowStatement_eval(na, context, res)
 	JsGetValue( &r1, r2);
 
 	TRACE(na->location, context, JS_TRACE_THROW);
-	JsThrow(r2);
+	JsThrowError(r2);
 	/* NOTREACHED */
 }
 
@@ -948,7 +948,7 @@ TryStatement_catch_eval(na, context, res)
 		if (e){
 			//如果Catch抛出错误, 则继续抛出该错误
 		    TRACE(na->location, context, JS_TRACE_THROW);
-			JsThrow(e);
+			JsThrowError(e);
 		}
 	}
 }
@@ -979,7 +979,7 @@ TryStatement_finally_eval(na, context, res)
 	}else if ( e != NULL) {
 		//如果发现try中存在throw, 则继续抛出
 	    TRACE(na->location, context, JS_TRACE_THROW);
-	    JsThrow(e);
+	    JsThrowError(e);
 	}
 }
 
@@ -1013,7 +1013,7 @@ TryStatement_catchfinally_eval(na, context, res)
 	}
 	if(e != NULL){
 		TRACE(na->location, context, JS_TRACE_THROW);
-		JsThrow(e);
+		JsThrowError(e);
 	}
 }
 

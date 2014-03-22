@@ -10,7 +10,8 @@
 		JS_STRING,
 		JS_OBJECT,
 		...
-	当到捕获点的时候, 还原JsContext, 并且释放这段期间的锁
+		当到捕获点的时候, 还原JsContext, 并且释放这段期间的锁, 以及其他非托管
+	资源.
 */
 struct JsValue;
 /*
@@ -18,28 +19,28 @@ struct JsValue;
 	
 	JS_TRY(0){
 		可以放置表达式(函数调用, 赋值,...)
-		如果使用return , break 语句则需要在之前调用JsOmitPoint()
+		如果使用return , break 语句则需要在之前调用 JsOmitDefender()
 		
 	}
 	doFinally工作
-	struct JsValue* e = NULL;
-	JS_CATCH(e){
+	struct JsValue* e0 = NULL;
+	JS_CATCH(e0){
 		1. 处理错误
 		2. 继续抛出异常
-			JsThrow(e);
+			JsThrowError(e0);
 	
 	}
 	JS_TRY(1){
 		可以放置表达式(函数调用, 赋值,...)
-		如果使用return , break 语句则需要在之前调用JsOmitPoint()
+		如果使用return , break 语句则需要在之前调用 JsOmitDefender()
 		
 	}
 	doFinally工作
-	struct JsValue* e = NULL;
-	JS_CATCH(e){
+	struct JsValue* e1 = NULL;
+	JS_CATCH(e1){
 		1. 处理错误
 		2. 继续抛出异常
-			JsThrow(e);
+			JsThrowError(e1);
 	
 	}
 */
@@ -49,8 +50,8 @@ struct JsValue;
 	jmp_buf* jmp_buf##mark = (jmp_buf*)JsMalloc(sizeof(jmp_buf)); \
 	for(done##mark = 0; \
 	    done##mark == 0 && (setjmp(*jmp_buf##mark) == 0 ? \
-			(JsBuildRecord(jmp_buf##mark),1) : (JsOmitRecord(),0));  \
-		++done##mark, JsOmitRecord())
+			(JsBuildDefender(jmp_buf##mark),1) : (JsOmitDefender(),0));  \
+		++done##mark, JsOmitDefender())
 
 /*Catch之后, 异常已经被清除了, 并且e会被赋值 [NULL,Value] */
 #define JS_CATCH(e) \
@@ -62,32 +63,29 @@ struct JsValue;
 *****************************************************************************/
 //模块初始化API
 void JsPrevInitError();
+
 void JsPostInitError();
-/*
-	抛出一个String类型的错误
-*/
-void JsThrowString(char* msg);
-/*
-	抛出一个error
-*/
-void JsThrow(struct JsValue* e);
+
 //保存一个还原点到环境中,p 为jmp_buf*指针
+void JsBuildDefender(void* p);
 
-void JsBuildRecord(void* p);
+//在环境中删除一个最近的还原点
+void JsOmitDefender();
 
-//每次加锁的时候, 把对应的锁添加到最近还原点的上下文中
-void JsPushLockToRecord(JsLock lock);
-//解锁的时候,  把给定的锁从最后面扫描, 剔除
-void JsPopLockInRecord(JsLock lock);
+//抛出一个String类型的错误
+void JsThrowString(char* msg);
+
+//抛出一个error
+void JsThrowError(struct JsValue* e);
+
 
 //检查当前环境是否存在异常, 当并不清除错误
 int JsCheckError();
-//在环境中删除一个最近的还原点
-void JsOmitRecord();
 
 //获得当前错误, 并且清除当前错误, 如果没有则返回NULL
 struct JsValue* JsGetError();
 
 //设置一个错误, NULL表示清除错误
 void JsSetError(struct JsValue* v);
+
 #endif
