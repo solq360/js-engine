@@ -45,14 +45,14 @@ struct JsValue;
 */
 /*一个函数中mark都要不同*/
 #define JS_TRY(mark) \
-	int done_mark; \
-	jmp_buf* jmp_buf_mark = (jmp_buf*)JsMalloc(sizeof(jmp_buf)); \
-	for(done_mark = 0; \
-	    done_mark == 0 && (setjmp(*jmp_buf_mark) == 0 ? \
-			(JsBuildRecord(jmp_buf_mark),1) : (JsOmitRecord(),0));  \
-		++done_mark, JsOmitRecord())
+	int done##mark; \
+	jmp_buf* jmp_buf##mark = (jmp_buf*)JsMalloc(sizeof(jmp_buf)); \
+	for(done##mark = 0; \
+	    done##mark == 0 && (setjmp(*jmp_buf##mark) == 0 ? \
+			(JsBuildRecord(jmp_buf##mark),1) : (JsOmitRecord(),0));  \
+		++done##mark, JsOmitRecord())
 
-/*Catch之后, 异常已经被清除了*/
+/*Catch之后, 异常已经被清除了, 并且e会被赋值 [NULL,Value] */
 #define JS_CATCH(e) \
 		if((e = JsGetError()))
 		

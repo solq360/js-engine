@@ -366,8 +366,7 @@ static void (*JsNodeClassEval[NODECLASS_MAX])(struct JsAstNode* ,
 	如果不想知道res, 则使用NULL
 */
 void JsEval(struct JsEngine* e,struct JsAstNode* ast, struct JsValue* res){
-	struct JsContext* c = e->exec;
-	EVAL(ast,c,res);
+	EVAL(ast,e->exec,res);
 }
 
 /*********                    static                       **********/
@@ -483,7 +482,7 @@ VariableDeclaration_eval(na, context, res)
 	JsGetValue(&r2, &r3);
 	//直接添加到当前Scope中
 	struct JsObject* top = (struct JsObject*)JsListGet(context->scope,JS_LIST_END);
-	(*top->Put)(top,n->var,&r2,context->varattr);
+	(*top->Put)(top,n->var,&r3,context->varattr);
 }
 /* 12.3 */
 static void
@@ -629,7 +628,7 @@ IterationStatement_for_eval(na, context, res)
 	    JsGetValue( &r2, &r3);		/* r3 not used */
 	}
 	v = NULL;
- step5:	
+step5:	
 	if (n->cond) {
 	    TRACE(n->cond->location, context, JS_TRACE_STATEMENT);
 	    EVAL(n->cond, context, &r6);
@@ -637,7 +636,7 @@ IterationStatement_for_eval(na, context, res)
 	    JsToBoolean(&r7, &r8);
 	    if (r8.u.boolean == FALSE)
 			goto step19;
-	} else{
+	}else{
 	    TRACE(na->location, context, JS_TRACE_STATEMENT);
 	}
 	EVAL(n->body, context, res);
@@ -997,21 +996,15 @@ TryStatement_catchfinally_eval(na, context, res)
 	struct JsValue r6;
 	struct JsValue *e = NULL;
 	TRACE(na->location, context, JS_TRACE_STATEMENT);
-	//CopyFromJsError
-	int done_1; 
-	jmp_buf* jmp_buf_1 = (jmp_buf*)JsMalloc(sizeof(jmp_buf)); 
-	for(done_1 = 0;  done_1 == 0  && (setjmp(*jmp_buf_1) == 0  ? 
-				(JsBuildRecord(jmp_buf_1),1) : (JsOmitRecord(),0));  
-		++done_1, JsOmitRecord()){
-			
-		EVAL(n->block, context, res);		
-	}
-	if(JsCheckError()){
-		struct JsValue* e = JsGetError();
+
+	JS_TRY(0){
+		EVAL(n->block, context, res);
+	}JS_CATCH(e){
+		//try 的 except 一定会被catch消耗,
+		//如果catch中没有except, 则e = NULL
 		e = TryStatement_help(n, context,e,res);
 	}
-
-	JS_TRY(2){
+	JS_TRY(1){
 		EVAL(n->bfinally, context, &r6);
 	}
 	if(JsCheckError()){
@@ -1290,7 +1283,7 @@ ConditionalExpression_eval(na, context, res)
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, &r2);
 	JsToBoolean(&r2, &r3);
-	if (r3.u.boolean)
+	if (r3.u.boolean == TRUE)
 		EVAL(n->b, context, &t);
 	else
 		EVAL(n->c, context, &t);
@@ -1310,7 +1303,7 @@ LogicalORExpression_eval(na, context, res)
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, res);
 	JsToBoolean(res, &r3);
-	if (r3.u.boolean)
+	if (r3.u.boolean == TRUE)
 		return;
 	EVAL(n->b, context, &r5);
 	JsGetValue( &r5, res);
@@ -1329,7 +1322,7 @@ LogicalANDExpression_eval(na, context, res)
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, res);
 	JsToBoolean(res, &r3);
-	if (!r3.u.boolean)
+	if (r3.u.boolean == FALSE)
 		return;
 	EVAL(n->b, context, &r5);
 	JsGetValue( &r5, res);
@@ -1552,16 +1545,20 @@ RelationalExpression_ge_eval(na, context, res)
 	struct JsAstBinaryNode *n = CAST_NODE(na, JsAstBinaryNode);
 	struct JsValue r1, r2, r3, r4, r5;
 
-	res->type = JS_BOOLEAN;
+	
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, &r2);
 	EVAL(n->b, context, &r3);
 	JsGetValue( &r3, &r4);
 	JsRelationalExpressionCompare(&r2, &r4, &r5);
-	if (r5.type == JS_UNDEFINED)
+	if (r5.type == JS_UNDEFINED){
+		res->type = JS_BOOLEAN;
 		res->u.boolean = FALSE;
-	else
+	}
+	else{
+		res->type = JS_BOOLEAN;
 		res->u.boolean = !r5.u.boolean;
+	}
 }
 
 
@@ -1575,17 +1572,21 @@ RelationalExpression_le_eval(na, context, res)
 	struct JsAstBinaryNode *n = CAST_NODE(na, JsAstBinaryNode);
 	struct JsValue r1, r2, r3, r4, r5;
 
-	res->type = JS_BOOLEAN;
+	
 	
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, &r2);
 	EVAL(n->b, context, &r3);
 	JsGetValue( &r3, &r4);
 	JsRelationalExpressionCompare( &r4, &r2, &r5);
-	if (r5.type == JS_UNDEFINED)
+	if (r5.type == JS_UNDEFINED){
+		res->type = JS_BOOLEAN;
 		res->u.boolean = FALSE;
-	else
+	}
+	else{
+		res->type = JS_BOOLEAN;
 		res->u.boolean = !r5.u.boolean;
+	}
 }
 
 
@@ -2481,14 +2482,14 @@ FunctionBody_eval(na, context, res)
 	struct JsValue *res;
 {
 	struct JsAstFunctionBodyNode *n = CAST_NODE(na, JsAstFunctionBodyNode);
-	struct JsValue v;
 
-	EVAL(n->u.a, context, &v);
+
+	EVAL(n->u.a, context, res);
 	//SourceElememts 运行结果只有JS_COMPLETION类型
-	JsAssert(v.type == JS_COMPLETION);
+	JsAssert(res->type == JS_COMPLETION);
 	//throw 直接抛出, 不会出现在这里
-	JsAssert(v.u.completion.type == JS_COMPLETION_NORMAL 
-		|| v.u.completion.type == JS_COMPLETION_RETURN);
+	JsAssert(res->u.completion.type == JS_COMPLETION_NORMAL 
+		|| res->u.completion.type == JS_COMPLETION_RETURN);
 		
 }
 
