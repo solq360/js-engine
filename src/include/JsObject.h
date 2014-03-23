@@ -36,7 +36,7 @@ struct JsObject{
 	const char *			Class;
 	//synchronized 锁, 不同于函数的sync锁
 	JsLock 					SyncLock;
-	/*函数特有scope*/
+	/*函数特有scope, 且都唯一*/
 	JsList 					Scope;
 	/*****************************函数属性******************/
 	/*通用操作属性*/

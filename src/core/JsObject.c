@@ -11,7 +11,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-
+#include<setjmp.h>
 /*
 	私有数据块
 */
@@ -567,8 +567,16 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	
 	//执行函数
 	res->type =JS_UNDEFINED;
-	(*f->fn)(e,f->data,res);
-	
+	struct JsValue* error = NULL;
+	JS_TRY(0){
+		(*f->fn)(e,f->data,res);
+	}JS_CATCH(error){
+		//释放资源锁
+		if(f->sync)
+			JsUnlock(f->fSyncLock);
+		//继续抛出错误
+		JsThrowError(error);
+	}
 	//还原环境
 	e->exec->scope = saveScope;
 	e->exec->thisObj = saveThisObj;
@@ -589,7 +597,7 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	}else if(res->type == JS_REFERENCE){
 		res->type = JS_UNDEFINED;
 	}//res->type = JS_OBJECT, JS_NULL, JS_BOOLEAN ...
-	
+
 	if(f->sync)
 		JsUnlock(f->fSyncLock);
 	return;

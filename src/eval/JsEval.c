@@ -911,11 +911,14 @@ TryStatement_help(n, context, C, res)
 	struct JsValue *C, *res;
 {
 	struct JsObject *r2;
-
+	struct JsContext* sc;
 	//配置新Scope
 	r2 = JsCreateStandardObject(NULL);
 	(*r2->Put)(r2,n->ident, C, JS_OBJECT_ATTR_DONTDELETE);
 	JsListPush(context->scope,r2);
+	//保存上下文资源
+	sc = JsCopyContext(context);
+		
 	JS_TRY(0){
 	    EVAL(n->bcatch, context, res);
 	}
@@ -923,7 +926,8 @@ TryStatement_help(n, context, C, res)
 	JsListRemove(context->scope,JS_LIST_END);
 	struct JsValue* e = NULL;
 	JS_CATCH(e){
-		//no thing
+		//还原
+		*context = *sc;
 	}
 	return e;
 }
@@ -937,13 +941,19 @@ TryStatement_catch_eval(na, context, res)
 	struct JsValue *res;
 {
 	struct JsAstTryStatementNode *n = CAST_NODE(na, JsAstTryStatementNode);
-
+	struct JsContext* sc;
 	TRACE(na->location, context, JS_TRACE_STATEMENT);
+	//保存上下文资源
+
+	sc = JsCopyContext(context);
 	JS_TRY(0){
 		EVAL(n->block, context, res);
 	}
 	struct JsValue* e = NULL;
 	JS_CATCH(e){
+		//还原上下文
+		*context = *sc;
+		//执行Catch内容
 		e = TryStatement_help(n, context,e,res);
 		if (e){
 			//如果Catch抛出错误, 则继续抛出该错误
@@ -963,14 +973,16 @@ TryStatement_finally_eval(na, context, res)
 {
 	struct JsAstTryStatementNode *n = CAST_NODE(na, JsAstTryStatementNode);
 	struct JsValue r2;
-	
+	struct JsContext* sc;
 	TRACE(na->location, context, JS_TRACE_STATEMENT);
 	struct JsValue* e = NULL;
+	
+	sc = JsCopyContext(context);
 	JS_TRY(0){
 	    EVAL(n->block, context, res);
 	}
 	JS_CATCH(e){
-		//none
+		*context = *sc;
 	}
 	EVAL(n->bfinally, context, &r2);
 	if (r2.type == JS_COMPLETION 
@@ -994,18 +1006,25 @@ TryStatement_catchfinally_eval(na, context, res)
 	struct JsValue r6;
 	struct JsValue *e = NULL;
 	TRACE(na->location, context, JS_TRACE_STATEMENT);
-
+	
+	struct JsContext* sc ;
+	sc = JsCopyContext(context);
 	JS_TRY(0){
 		EVAL(n->block, context, res);
 	}JS_CATCH(e){
+		*context = *sc; 
 		//try 的 except 一定会被catch消耗,
 		//如果catch中没有except, 则e = NULL
 		e = TryStatement_help(n, context,e,res);
 	}
+	
+	sc = JsCopyContext(context);
 	JS_TRY(1){
 		EVAL(n->bfinally, context, &r6);
 	}
 	if(JsCheckError()){
+		//还原上下文
+		*context = *sc;
 		e = JsGetError();
 	}else if(r6.type == JS_COMPLETION 
 		&& r6.u.completion.type != JS_COMPLETION_NORMAL){

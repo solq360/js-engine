@@ -9,7 +9,7 @@ struct JsFunction;
 
 
 /*
-	上下文, 对执行过程的控制,每个JsContext只属于一个线程(Engine,NIO)
+	上下文, 对执行过程的控制, 每个JsContext只属于一个线程(Engine,NIO)
 	所以不会发生多线程占用, 数据要被独占, 不能给其他对象使用
 */
 struct JsContext{
@@ -17,10 +17,12 @@ struct JsContext{
 	struct JsEngine* engine;//指向挂载的Engine
 	/*
 		struct JsObject 当前Context查询的scope
+		每个JsContext都唯一
 	*/
 	JsList scope;
 	/*
 		struct JsStack 函数的堆栈表示
+		每个JsContext都唯一
 	*/
 	JsList stack;
 	/*
