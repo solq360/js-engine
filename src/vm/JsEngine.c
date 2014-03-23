@@ -89,7 +89,7 @@ void JsDispatch(struct JsContext* c){
 		}
 		struct JsValue* error = NULL;
 		JS_CATCH(error){
-			//NONE
+			JsPrintError(error);
 		}
 		//还原环境
 		JsSetTlsEngine(tlsEngine);

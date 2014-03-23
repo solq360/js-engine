@@ -49,7 +49,7 @@ void JsToBoolean(struct JsValue *val, struct JsValue *res){
 		res->u.boolean = TRUE;
 		break;
 	default:
-		JsPrintf("JsValue.c : ToBoolean ERROR\n");
+		JsPrint("JsValue.c : ToBoolean ERROR\n");
 		JsThrowString("JsValue.c : ToBoolean ERROR");
 	}
 }
@@ -90,7 +90,7 @@ void JsToNumber(struct JsValue *val, struct JsValue *res){
 			break;
 	    }
 	default:
-		JsPrintf("JsValue.c : ToNumber ERROR\n");
+		JsPrint("JsValue.c : ToNumber ERROR\n");
 		JsThrowString("JsValue.c : ToNumber ERROR");
 	}
 
@@ -181,7 +181,7 @@ void JsToString(struct JsValue *val, struct JsValue *res){
 		break;
 	}
 	default:
-		JsPrintf("JsValue.c : ToString ERROR\n");
+		JsPrint("JsValue.c : ToString ERROR\n");
 		JsThrowString("JsValue.c : ToString ERROR");
 		
 	}
@@ -220,7 +220,7 @@ void JsToObject(struct JsValue *val, struct JsValue *res){
 	con = &con0;
 	if( con->type != JS_OBJECT || con->u.object == NULL 
 		|| con->u.object->Construct == NULL){
-			JsPrintf("TypeError");
+			JsPrint("TypeError");
 			//JsThrowString("TypeError");
 			//直接中断程序
 			JsAssert(FALSE);
@@ -241,7 +241,7 @@ void JsGetValue(struct JsValue* v, struct JsValue* res){
 		return;
 	}
 	if (v->u.reference.base == NULL){
-		JsPrintf("ReferenceError\n");
+		JsPrint("ReferenceError\n");
 		JsThrowString("ReferenceError");
 		return;
 	}
@@ -254,7 +254,7 @@ void JsPutValue(struct JsValue* v,struct JsValue* w,struct JsValue* res){
 	struct JsObject *target;
 	res->type = JS_BOOLEAN;
 	if (v->type != JS_REFERENCE){
-		JsPrintf("ReferenceError\n");
+		JsPrint("ReferenceError\n");
 		JsThrowString("ReferenceError");
 	}
 	target = v->u.reference.base;

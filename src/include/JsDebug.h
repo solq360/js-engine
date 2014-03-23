@@ -26,6 +26,7 @@ struct JsStack{
 /****************************************************************************
 									通用API
 *****************************************************************************/
-void JsPrintf(char* fmt,...);
+void JsPrint(char* fmt,...);
+void JsPrintError(struct JsValue* e);
 void JsAssert(int v);
 #endif
