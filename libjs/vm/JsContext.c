@@ -45,8 +45,8 @@ struct JsContext* JsCopyContext(struct JsContext* c){
 	struct JsContext* context;
 	
 	context = (struct JsContext*)JsMalloc(sizeof(struct JsContext));
-	JsListInit(context->scope);
-	JsListInit(context->stack);
+	JsListInit(&context->scope);
+	JsListInit(&context->stack);
 	if(c == NULL){
 		context->engine = NULL;
 		JsListPush(context->scope,JsGetVm()->Global);
@@ -83,6 +83,12 @@ void JsFindValueRef(struct JsContext* c, char* name,struct JsValue* res){
 	
 	if(c == NULL){
 		obj = JsGetVm()->Global;
+		if(obj == NULL){
+			//当Global调用CreateStandardObject->FindValue的时候
+			//obj = NULL
+			res->type = JS_UNDEFINED;
+			return;
+		}
 		(*obj->HasProperty)(obj,name,&v);
 		if(v.type == JS_BOOLEAN && v.u.boolean == TRUE){
 			base = obj;
@@ -113,6 +119,12 @@ void JsFindValue(struct JsContext* c, char* name,struct JsValue* res){
 	struct JsValue v;
 	if(c == NULL){
 		obj = JsGetVm()->Global;
+		if(obj == NULL){
+			//当Global调用CreateStandardObject->FindValue的时候
+			//obj = NULL
+			res->type = JS_UNDEFINED;
+			return;
+		}
 		(*obj->HasProperty)(obj,name,&v);
 		if(v.type == JS_BOOLEAN && v.u.boolean == TRUE){
 			base = obj;

@@ -74,7 +74,7 @@ static struct JsValue* jsCreateArguments(struct JsObject* fun,int argc, struct J
 //构造一个JsObject的空间, floor 声明了pb 和 sb 数组的长度
 // RootObject为 0 即JsStandardObject所在的层数
 struct JsObject* JsAllocObject(int floor){
-	if(floor <= 0){
+	if(floor < 0){
 		JsAssert(FALSE);
 	}
 	floor ++;

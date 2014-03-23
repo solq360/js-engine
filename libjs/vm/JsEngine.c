@@ -34,8 +34,8 @@ struct JsEngine* JsCreateEngine(){
 	e->state = JS_ENGINE_KERNEL;
 	
 	e->exec = NULL;
-	JsListInit(e->waits);
-	JsListInit(e->pools);
+	JsListInit(&e->waits);
+	JsListInit(&e->pools);
 	
 	JsCreateLock(&e->lock);
 	return e;

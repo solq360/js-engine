@@ -14,12 +14,13 @@
 #include<stdio.h>
 #include<string.h>
 #include<setjmp.h>
-static char* source = "var a =1 ;";
+static char* source = "function a(){ var i =1;}; a(); this.a = 1; this['a']; var c  = [1,2,3,4];";
 static void JsContextTask(struct JsEngine* e){
 	struct JsAstNode* ast = NULL;
 	struct JsValue v;
 	JsParseString(JS_PARSER_DEBUG_PARSE,source,&ast);
 	JsEval(e,ast,&v);
+	printf("hello");
 }
 int main(){
 	JsCreateVm(TRUE,0,NULL, NULL);

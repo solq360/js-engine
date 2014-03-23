@@ -203,7 +203,8 @@ void JsToObject(struct JsValue *val, struct JsValue *res){
 		break;
 	case JS_OBJECT:
 		*res = *val;
-		break;
+		//直接返回, 不需要构建了
+		return;
 	case JS_BOOLEAN:
 		JsFindValue(NULL,"Boolean",&con0);
 		break;
