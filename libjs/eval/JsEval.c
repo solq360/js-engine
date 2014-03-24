@@ -2064,7 +2064,7 @@ UnaryExpression_typeof_eval_common(context, r1, res)
 	JsGetValue( r1, &r4);
 	switch (r4.type) {
 	case JS_UNDEFINED:	s = "undefined"; break;
-	case JS_NULL:		s = "object"; break;
+	case JS_NULL:		s = "null"; break;
 	case JS_BOOLEAN:	s = "boolean"; break;
 	case JS_NUMBER:		s = "number"; break;
 	case JS_STRING:		s = "string"; break;

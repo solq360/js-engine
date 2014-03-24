@@ -18,20 +18,44 @@ void JsPrint(char* fmt,...){
 	}
 }
 void JsPrintError(struct JsValue* e){
-	char* s  =NULL;
-	if(JsGetVm()->debug){
-		switch(e->type){
-			case JS_UNDEFINED: s= "undefined";break;
-			case JS_NULL : s= "null";break;
-			case JS_NUMBER : s= "number";break;
-			case JS_STRING: s = e->u.string;break;
-			case JS_OBJECT: s = "object";break;
-			case JS_BOOLEAN: s = "boolean";break;
-			default:
-				s = "unknow";
-		}
-		printf("%s\n",s);
+
+	if(JsGetVm()->debug == FALSE)
+		return;
+	switch(e->type){
+	case JS_NULL:{
+		printf("null");
+		break;
 	}
+	case JS_UNDEFINED:{
+		printf("undefined");
+		break;
+	}
+	case JS_BOOLEAN:{
+		if(e->u.boolean == TRUE){
+			printf("true");
+		}else{
+			printf("false");
+		}
+		break;
+	}
+	case JS_NUMBER:{
+		printf("%lf",e->u.number);
+		break;
+	}
+	case JS_STRING:{
+		printf("%s",e->u.string);
+		break;
+	}
+	case JS_OBJECT:{
+		struct JsValue str;
+		JsToString(e,&str);
+		printf("%s",str.u.string);
+		break;
+	}
+	default:
+		printf("unknow type");
+	}
+	printf("\n");
 }
 void JsAssert(int v){
 	assert(v);

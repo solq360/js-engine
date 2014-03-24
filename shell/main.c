@@ -19,7 +19,7 @@
 static void JsContextTask(struct JsEngine* e){
 	struct JsAstNode* ast = NULL;
 	struct JsValue v;
-	JsParseFile(JS_PARSER_DEBUG_PARSE,"../file.js",&ast);
+	JsParseFile(JS_PARSER_DEBUG_ERROR,"../file.js",&ast);
 	JsEval(e,ast,&v);
 	printf("hello");
 }
@@ -30,7 +30,41 @@ static void JsPrintFn(struct JsEngine* e,void* data,struct JsValue* res){
 	if(c ==  NULL)
 		return;
 	JsFindValue(c,"value",&v);
-	JsPrintError(&v);
+	switch(v.type){
+	case JS_NULL:{
+		printf("null");
+		break;
+	}
+	case JS_UNDEFINED:{
+		printf("undefined");
+		break;
+	}
+	case JS_BOOLEAN:{
+		if(v.u.boolean == TRUE){
+			printf("true");
+		}else{
+			printf("false");
+		}
+		break;
+	}
+	case JS_NUMBER:{
+		printf("%lf",v.u.number);
+		break;
+	}
+	case JS_STRING:{
+		printf("%s",v.u.string);
+		break;
+	}
+	case JS_OBJECT:{
+		struct JsValue str;
+		JsToString(&v,&str);
+		printf("%s",str.u.string);
+		break;
+	}
+	default:
+		printf("unknow type");
+	}
+	printf("\n");
 }
 static void CreatePrintFn(){
 	char** argv = JsMalloc(sizeof(char*) * 1);
