@@ -149,9 +149,9 @@ void JsToString(struct JsValue *val, struct JsValue *res){
 		break;
 	case JS_BOOLEAN:{
 		if(val->u.boolean)
-			res->u.string ="false";
+			res->u.string ="true";
 		else
-			res->u.string = "true";
+			res->u.string = "false";
 		break;
 	}
 	case JS_NUMBER:{					 /* 9.8.1 */

@@ -66,9 +66,9 @@ static struct JsObject* JsCreateBaseObject(struct JsObject* o,int isf,int level,
 //通知被删除属性的对象的迭代器
 static void noticeDel(struct JsStandardSelfBlock* sb);
 //创建一个Activation对象, Class = "Activation"
-static struct JsObject* jsCreateActivationObject(struct JsObject* fun,int argc, struct JsValue** argv);
+static struct JsObject* JsCreateActivationObject(struct JsObject* fun,int argc, struct JsValue** argv);
 //创建一个Arguments对象
-static struct JsValue* jsCreateArguments(struct JsObject* fun,int argc, struct JsValue** argv);
+static struct JsValue* JsCreateArguments(struct JsObject* fun,int argc, struct JsValue** argv);
 
 ////////////////////////////////////////////////////////////////////////////////////
 //构造一个JsObject的空间, floor 声明了pb 和 sb 数组的长度
@@ -540,7 +540,7 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	if(f->sync)
 		JsLockup(f->fSyncLock);
 	//ActivationObject对象处理
-	ac = jsCreateActivationObject(self,argc,argv);
+	ac = JsCreateActivationObject(self,argc,argv);
 	//创建一个新的Scope List
 	JsListInit(&newScope);
 	JsListCopy(newScope,self->Scope);
@@ -603,7 +603,7 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	return;
 }
 
-static struct JsObject* jsCreateActivationObject(struct JsObject* fun, int argc, 
+static struct JsObject* JsCreateActivationObject(struct JsObject* fun, int argc, 
 					struct JsValue** argv){
 	int i;
 	struct JsStandardSelfBlock* sb;
@@ -614,7 +614,7 @@ static struct JsObject* jsCreateActivationObject(struct JsObject* fun, int argc,
 	//不使用默认"Object"
 	activationObj->Class = "Activation";
 	//配置arguments对象
-	(*activationObj->Put)(activationObj,"arguments",jsCreateArguments(fun,argc,argv),JS_OBJECT_ATTR_DONTDELETE);
+	(*activationObj->Put)(activationObj,"arguments",JsCreateArguments(fun,argc,argv),JS_OBJECT_ATTR_DONTDELETE);
 	//构建Function Params
 	for(i=0;i<f->argc && i< argc;++i){
 		(*activationObj->Put)(activationObj,f->argv[i],argv[i],JS_OBJECT_ATTR_DONTDELETE);
@@ -626,7 +626,7 @@ static struct JsObject* jsCreateActivationObject(struct JsObject* fun, int argc,
 	}
 	return activationObj;
 }
-static struct JsValue* jsCreateArguments(struct JsObject* fun,int argc, struct JsValue** argv){
+static struct JsValue* JsCreateArguments(struct JsObject* fun,int argc, struct JsValue** argv){
 	int i;
 	struct JsObject* argumentsObj = JsCreateStandardObject(NULL);
 	struct JsValue* length = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
