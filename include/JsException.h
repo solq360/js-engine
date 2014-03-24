@@ -1,5 +1,5 @@
-#ifndef JsErrorH
-#define JsErrorH
+#ifndef JsExceptionH
+#define JsExceptionH
 
 #include"JsType.h"
 /**
@@ -27,7 +27,7 @@ struct JsValue;
 	JS_CATCH(e0){
 		1. 处理错误
 		2. 继续抛出异常
-			JsThrowError(e0);
+			JsThrowException(e0);
 	
 	}
 	JS_TRY(1){
@@ -40,7 +40,7 @@ struct JsValue;
 	JS_CATCH(e1){
 		1. 处理错误
 		2. 继续抛出异常
-			JsThrowError(e1);
+			JsThrowException(e1);
 	
 	}
 */
@@ -55,16 +55,16 @@ struct JsValue;
 
 /*Catch之后, 异常已经被清除了, 并且e会被赋值 [NULL,Value] */
 #define JS_CATCH(e) \
-		if((e = JsGetError()))
+		if((e = JsGetException()))
 		
 		
 /****************************************************************************
 									通用API
 *****************************************************************************/
 //模块初始化API
-void JsPrevInitError();
+void JsPrevInitException();
 
-void JsPostInitError();
+void JsPostInitException();
 
 //保存一个还原点到环境中,p 为jmp_buf*指针
 void JsBuildDefender(void* p);
@@ -76,16 +76,16 @@ void JsOmitDefender();
 void JsThrowString(char* msg);
 
 //抛出一个error
-void JsThrowError(struct JsValue* e);
+void JsThrowException(struct JsValue* e);
 
 
 //检查当前环境是否存在异常, 当并不清除错误
-int JsCheckError();
+int JsCheckException();
 
 //获得当前错误, 并且清除当前错误, 如果没有则返回NULL
-struct JsValue* JsGetError();
+struct JsValue* JsGetException();
 
 //设置一个错误, NULL表示清除错误
-void JsSetError(struct JsValue* v);
+void JsSetException(struct JsValue* v);
 
 #endif

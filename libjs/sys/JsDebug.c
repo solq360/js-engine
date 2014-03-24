@@ -8,20 +8,17 @@
 #include<stdlib.h>
 #include<stdarg.h>
 #include<assert.h>
-void JsPrint(char* fmt,...){
-	
-	if(JsGetVm()->debug){
-		va_list args;
-		va_start(args, fmt);
-		vprintf(fmt, args);
-		va_end(args);
-	}
-}
-void JsPrintError(struct JsValue* e){
+void JsPrintString(char* fmt,...){
 
-	if(JsGetVm()->debug == FALSE)
-		return;
-	switch(e->type){
+	va_list args;
+	va_start(args, fmt);
+	vprintf(fmt, args);
+	va_end(args);
+
+}
+void JsPrintValue(struct JsValue* v){
+
+	switch(v->type){
 	case JS_NULL:{
 		printf("null");
 		break;
@@ -31,7 +28,7 @@ void JsPrintError(struct JsValue* e){
 		break;
 	}
 	case JS_BOOLEAN:{
-		if(e->u.boolean == TRUE){
+		if(v->u.boolean == TRUE){
 			printf("true");
 		}else{
 			printf("false");
@@ -39,16 +36,16 @@ void JsPrintError(struct JsValue* e){
 		break;
 	}
 	case JS_NUMBER:{
-		printf("%lf",e->u.number);
+		printf("%lf",v->u.number);
 		break;
 	}
 	case JS_STRING:{
-		printf("%s",e->u.string);
+		printf("%s",v->u.string);
 		break;
 	}
 	case JS_OBJECT:{
 		struct JsValue str;
-		JsToString(e,&str);
+		JsToString(v,&str);
 		printf("%s",str.u.string);
 		break;
 	}

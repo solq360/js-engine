@@ -6,7 +6,7 @@
 #include"JsList.h"
 #include"JsSys.h"
 #include"JsInit.h"
-#include"JsError.h"
+#include"JsException.h"
 #include"JsDebug.h"
 #include<stdlib.h>
 #include<stdio.h>
@@ -68,7 +68,7 @@ struct JsVm* JsGetVm(){
 static void JsPrevInitModules(){
 	//.h中声明为 JsPrevInitializeModule 的API
 	JsPrevInitSys();
-	JsPrevInitError();
+	JsPrevInitException();
 	JsPrevInitEngine();
 	JsPrevInitContext();
 }
@@ -81,7 +81,7 @@ static void JsLoadShareModule(struct JsVm* vm){
 static void JsPostInitModules(){
 	//.h中声明为 JsPostInitializeModule 的API
 	JsPostInitSys();
-	JsPostInitError();
+	JsPostInitException();
 	JsPostInitEngine();
 	JsPostInitContext();
 }

@@ -6,7 +6,7 @@
 #include"JsValue.h"
 #include"JsSys.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include"JsAst.h"
 #include"JsParser.h"
 #include"JsEval.h"
@@ -895,7 +895,7 @@ ThrowStatement_eval(na, context, res)
 	JsGetValue( &r1, r2);
 
 	TRACE(na->location, context, JS_TRACE_THROW);
-	JsThrowError(r2);
+	JsThrowException(r2);
 	/* NOTREACHED */
 }
 
@@ -958,7 +958,7 @@ TryStatement_catch_eval(na, context, res)
 		if (e){
 			//如果Catch抛出错误, 则继续抛出该错误
 		    TRACE(na->location, context, JS_TRACE_THROW);
-			JsThrowError(e);
+			JsThrowException(e);
 		}
 	}
 }
@@ -991,7 +991,7 @@ TryStatement_finally_eval(na, context, res)
 	}else if ( e != NULL) {
 		//如果发现try中存在throw, 则继续抛出
 	    TRACE(na->location, context, JS_TRACE_THROW);
-	    JsThrowError(e);
+	    JsThrowException(e);
 	}
 }
 
@@ -1022,17 +1022,17 @@ TryStatement_catchfinally_eval(na, context, res)
 	JS_TRY(1){
 		EVAL(n->bfinally, context, &r6);
 	}
-	if(JsCheckError()){
+	if(JsCheckException()){
 		//还原上下文
 		*context = *sc;
-		e = JsGetError();
+		e = JsGetException();
 	}else if(r6.type == JS_COMPLETION 
 		&& r6.u.completion.type != JS_COMPLETION_NORMAL){
 		*res = r6;
 	}
 	if(e != NULL){
 		TRACE(na->location, context, JS_TRACE_THROW);
-		JsThrowError(e);
+		JsThrowException(e);
 	}
 }
 

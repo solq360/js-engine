@@ -6,7 +6,7 @@
 #include"JsValue.h"
 #include"JsSys.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include"JsAst.h"
 #include"JsParser.h"
 #include"JsEval.h"

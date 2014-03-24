@@ -6,7 +6,7 @@
 #include"JsList.h"
 #include"JsSys.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include"JsAst.h"
 #include<stdlib.h>
 #include<stdio.h>
@@ -575,7 +575,7 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 		if(f->sync)
 			JsUnlock(f->fSyncLock);
 		//继续抛出错误
-		JsThrowError(error);
+		JsThrowException(error);
 	}
 	//还原环境
 	e->exec->scope = saveScope;

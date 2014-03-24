@@ -8,7 +8,7 @@
 #include"JsDebug.h"
 #include"JsAst.h"
 #include"JsECMAScript.h"
-#include"JsError.h"
+#include"JsException.h"
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>

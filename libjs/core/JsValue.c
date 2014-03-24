@@ -4,7 +4,7 @@
 #include"JsVm.h"
 #include"JsObject.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include"JsSys.h"
 #include<string.h>
 #include<stdio.h>
@@ -49,7 +49,6 @@ void JsToBoolean(struct JsValue *val, struct JsValue *res){
 		res->u.boolean = TRUE;
 		break;
 	default:
-		JsPrint("JsValue.c : ToBoolean ERROR\n");
 		JsThrowString("JsValue.c : ToBoolean ERROR");
 	}
 }
@@ -90,7 +89,6 @@ void JsToNumber(struct JsValue *val, struct JsValue *res){
 			break;
 	    }
 	default:
-		JsPrint("JsValue.c : ToNumber ERROR\n");
 		JsThrowString("JsValue.c : ToNumber ERROR");
 	}
 
@@ -181,7 +179,6 @@ void JsToString(struct JsValue *val, struct JsValue *res){
 		break;
 	}
 	default:
-		JsPrint("JsValue.c : ToString ERROR\n");
 		JsThrowString("JsValue.c : ToString ERROR");
 		
 	}
@@ -221,7 +218,7 @@ void JsToObject(struct JsValue *val, struct JsValue *res){
 	con = &con0;
 	if( con->type != JS_OBJECT || con->u.object == NULL 
 		|| con->u.object->Construct == NULL){
-			JsPrint("TypeError");
+			JsPrintString("TypeError");
 			//JsThrowString("TypeError");
 			//直接中断程序
 			JsAssert(FALSE);

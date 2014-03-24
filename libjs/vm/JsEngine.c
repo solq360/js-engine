@@ -6,7 +6,7 @@
 #include"JsList.h"
 #include"JsSys.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include<setjmp.h>
 #include<stdlib.h>
 #include<stdio.h>
@@ -89,7 +89,7 @@ void JsDispatch(struct JsContext* c){
 		}
 		struct JsValue* error = NULL;
 		JS_CATCH(error){
-			JsPrintError(error);
+			JsPrintValue(error);
 		}
 		//还原环境
 		JsSetTlsEngine(tlsEngine);

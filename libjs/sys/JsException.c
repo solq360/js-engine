@@ -7,7 +7,7 @@
 #include"JsSys.h"
 #include"JsInit.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
@@ -23,10 +23,10 @@ static void JsTlsClose(void *data);
 static void JsInitTlsKey();
 
 //------------------------------------------------------------------
-void JsPrevInitError(){
+void JsPrevInitException(){
 	JsInitTlsKey();
 }
-void JsPostInitError(){
+void JsPostInitException(){
 
 }
 
@@ -61,10 +61,10 @@ void JsThrowString(char* msg){
 	if(msg == NULL)
 		msg = "EMPTY MSG";
 	e->u.string = msg;
-	JsThrowError(e);
+	JsThrowException(e);
 }
 //都从这里跳转
-void JsThrowError(struct JsValue* e){
+void JsThrowException(struct JsValue* e){
 	JsAssert(e != NULL);
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 	//设置error对象
@@ -75,7 +75,7 @@ void JsThrowError(struct JsValue* e){
 	longjmp(*(jmp_buf*)r,1);
 }
 
-int JsCheckError(){
+int JsCheckException(){
 
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 	if(p == NULL)
@@ -83,7 +83,7 @@ int JsCheckError(){
 	return p->err != NULL;
 }
 //获得当前错误,  并且消除e
-struct JsValue* JsGetError(){
+struct JsValue* JsGetException(){
 
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 	if(p == NULL)
@@ -92,7 +92,7 @@ struct JsValue* JsGetError(){
 	p->err = NULL;
 	return e;
 }
-void JsSetError(struct JsValue* v){
+void JsSetException(struct JsValue* v){
 
 	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
 	if(p == NULL)

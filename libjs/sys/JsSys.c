@@ -7,7 +7,7 @@
 #include"JsSys.h"
 #include"JsInit.h"
 #include"JsDebug.h"
-#include"JsError.h"
+#include"JsException.h"
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
