@@ -695,6 +695,7 @@ void JsStandardHasInstance(struct JsObject *self, struct JsValue *instance,
 		if(prototype == res0.u.object){
 			res->type = JS_BOOLEAN;
 			res->u.boolean = TRUE;
+			return;
 		}
 		//下一个对象的原形
 		prototype = prototype->Prototype;

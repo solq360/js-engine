@@ -36,7 +36,7 @@
 ">=" 			return tGE;
 "if" 			return tIF;
 "in" 			return tIN;
-"instancepf" 	return tINSTANCEOF;
+"instanceof" 	return tINSTANCEOF;
 "<=" 			return tLE;
 "<<" 			return tLSHIFT;
 "<<=" 			return tLSHIFTEQ;

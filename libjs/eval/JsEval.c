@@ -1453,7 +1453,10 @@ EqualityExpression_sne_eval(na, context, res)
 	JsGetValue( &r3, &r4);
 	JsEqualityExpressionSeqCompare( &r4, &r2, &r5);
 	res->type = JS_BOOLEAN;
-	res->u.boolean = !r5.u.boolean;
+	if(r5.u.boolean == TRUE)
+		res->u.boolean = FALSE;
+	else
+		res->u.boolean = TRUE;
 }
 
 /* 11.9.4 */
@@ -1489,7 +1492,12 @@ EqualityExpression_ne_eval(na, context, res)
 	JsGetValue( &r3, &r4);
 	JsEqualityExpressionEqCompare( &r4, &r2, &t);
 	res->type = JS_BOOLEAN;
-	res->u.boolean =  !t.u.boolean;
+	if(t.u.boolean  == TRUE){
+		res->u.boolean  = FALSE;
+	}else{
+		res->u.boolean = TRUE;
+	}
+
 }
 
 /* 11.9.1 */
@@ -1574,7 +1582,11 @@ RelationalExpression_ge_eval(na, context, res)
 	}
 	else{
 		res->type = JS_BOOLEAN;
-		res->u.boolean = !r5.u.boolean;
+		if(r5.u.boolean == TRUE){
+			res->u.boolean = FALSE;
+		}else{
+			res->u.boolean = TRUE;
+		}
 	}
 }
 
@@ -1602,7 +1614,11 @@ RelationalExpression_le_eval(na, context, res)
 	}
 	else{
 		res->type = JS_BOOLEAN;
-		res->u.boolean = !r5.u.boolean;
+		if(r5.u.boolean == TRUE){
+			res->u.boolean = FALSE;
+		}else{
+			res->u.boolean = TRUE;
+		}
 	}
 }
 
@@ -1936,7 +1952,11 @@ UnaryExpression_not_eval(na, context, res)
 	JsGetValue( &r1, &r2);
 	JsToBoolean( &r2, &r3);
 	res->type = JS_BOOLEAN;
-	res->u.boolean = !r3.u.boolean;
+	if(r3.u.boolean == TRUE){
+		res->u.boolean  = FALSE;
+	}else{
+		res->u.boolean  = TRUE;
+	}
 }
 
 /* 11.4.8 */

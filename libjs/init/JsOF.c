@@ -220,6 +220,7 @@ static void JsObjectProtoIsPrototypeOfCall(struct JsObject *obj, struct JsObject
 		if(prototype == thisobj){
 			res->type = JS_BOOLEAN;
 			res->u.boolean = TRUE;
+			return;
 		}
 		//下一个对象的原形
 		prototype = prototype->Prototype;
@@ -249,7 +250,7 @@ static void JsObjectProtoPropertyIsEnumerableCall(struct JsObject *obj, struct J
 		if(v.type == JS_UNDEFINED)
 			res->u.boolean = FALSE;
 		else
-			res->u.boolean = ((flag & JS_OBJECT_ATTR_DONTENUM) == 0);
+			res->u.boolean = ((flag & JS_OBJECT_ATTR_DONTENUM) == 0 ? TRUE : FALSE);
 	}
 	//该对象不存在该属性
 	res->u.boolean = FALSE;

@@ -173,7 +173,52 @@
 	print("===============================");
 	print("=======test relational Operators=============");
 	print("string <" + ("abc" < "abcd"));
-	print("string >" + ("abc" > "abcd"));
-	
+	print("string >" + ("abcd" > "abc"));
+	print("string <=" + ("abc" <= "abc"));
+	print("string >=" + ("abc" >= "abc"));
+	print("number <" + (1 < 2));
+	print("number >" + (2 > 1));
+	print("number <=" + (1 <= 1));
+	print("number >=" + (1 >= 1));
+	var a = {a:1};
+	print("in: " + ('a' in a));
+	print("instanceof: " + (C1 instanceof Class));
+	print("===============================");
+	print("=======test Additive Operators =============");
+	print("1+3:"+ (1 + 3));
+	print("1-3:"+ (1 - 3));
+	print("===============================");
+	print("=======test Multiplicative Operators =============");
+	print("12*3:"+ (12 * 3));
+	print("12%3:"+ (12 % 3));
+	print("12/3:"+ (12 / 3));
+	print("===============================");
+	print("=========Unary===========");
+	var a = 1;
+	print("delete don't delete: " + (delete a) == false);
+	abcd =1;
+	print("delete :" + (delete abcd));
+	print("void: "+ ((void a)==undefined));
+	print("typeof");
+	var a = [null,undefined,1,'string',{},true,false];
+	for(var i = 0 ; i <  a.length ; ++ i){
+		print(typeof a[i]);
+	}
+	i = 1;
+	print("++i, i =1 :" + (++i));
+	print("--i, i =2 :" + (--i));
+	print("!i, i =1 : "+ !i);
+	i = NaN;
+	print("!i, i =NaN : "+ !i);
+	i = 0;
+	print("!i, i =0 : "+ !i);
+	i = undefined;
+	print("!i, i = undefined : "+ !i);
+	print((NaN-1) == NaN);
+	print("===============================");
+	print("============test postfix================");
+	var i= 0;
+	print("i++,i=0"+ ( i++));
+	print("i--,i=1"+(i--));
 	
 })(0,1,2,3,"string",true,false,{a:1},function(){});

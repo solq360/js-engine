@@ -50,7 +50,7 @@ static struct JsObject* JsCreateBooleanObject(struct JsObject* prototype,int boo
 	
 	//初始化自己的Sb
 	int* p = (int*)JsMalloc(sizeof(int));
-	*p = boolean;
+	*p = (boolean != 0 ? TRUE:FALSE);
 	b->sb[JS_BOOLEAN_FLOOR] = p;
 	return b;
 }

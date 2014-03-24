@@ -2079,7 +2079,7 @@ Literal_parse(parser)
 		n = NEW_NODE(struct JsAstLiteralNode,  NODECLASS_Literal);
 		n->value = (struct JsValue*) JsMalloc(sizeof(struct JsValue));
 		n->value->type = JS_BOOLEAN;
-		n->value->u.boolean = (NEXT == tTRUE);
+		n->value->u.boolean = (NEXT == tTRUE ? TRUE : FALSE);
 		SKIP;
 		return (struct JsAstNode *)n;
 	case tNUMBER:

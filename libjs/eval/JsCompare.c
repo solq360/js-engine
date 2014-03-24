@@ -14,7 +14,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-
+#include<math.h>
 
 /*
  * 11.8.5 Abstract relational comparison function. x < y
@@ -30,14 +30,14 @@ void JsRelationalExpressionCompare( struct JsValue *x, struct JsValue *y,
 	{
 		JsToNumber(&r1, &r4);
 		JsToNumber(&r2, &r5);
-		if (r4.u.number == JS_VALUE_NUMBER_NAN || r5.u.number == JS_VALUE_NUMBER_NAN)
+		if (isnan(r4.u.number) || isnan(r5.u.number))
 			res->type = JS_UNDEFINED;
 		else if (r4.u.number == r5.u.number){
 			res->type = JS_BOOLEAN;
 			res->u.boolean = FALSE;
 		}else{
 			res->type = JS_BOOLEAN;
-			res->u.boolean = ( r4.u.number < r5.u.number);
+			res->u.boolean = ( r4.u.number < r5.u.number ? TRUE : FALSE) ;
 		}
 	}else{
 		int r1Length = strlen(r1.u.string);
@@ -54,7 +54,7 @@ void JsRelationalExpressionCompare( struct JsValue *x, struct JsValue *y,
 			res->u.boolean  = TRUE;
 		}else{
 			res->type = JS_BOOLEAN;
-			res->u.boolean  = (r1.u.string[k] < r2.u.string[k]);
+			res->u.boolean  = (r1.u.string[k] < r2.u.string[k] ? TRUE : FALSE);
 		}
 	}
 }
@@ -75,21 +75,20 @@ void JsEqualityExpressionEqCompare( struct JsValue *x, struct JsValue *y,
 			res->u.boolean = TRUE;
 			return;
 		case JS_NUMBER:
-			if (x->u.number == JS_VALUE_NUMBER_NAN 
-					|| y->u.number == JS_VALUE_NUMBER_NAN)
-				res->u.boolean = TRUE;
+			if (isnan(x->u.number) || isnan(y->u.number))
+				res->u.boolean = FALSE;
 			else
-				res->u.boolean =  (x->u.number == y->u.number);
+				res->u.boolean =  (x->u.number == y->u.number ? TRUE : FALSE);
 			return;
 		case JS_STRING:
-			res->u.boolean = (strcmp(x->u.string,y->u.string) == 0);
+			res->u.boolean = (strcmp(x->u.string,y->u.string) == 0 ? TRUE: FALSE);
 			return;
 		case JS_BOOLEAN:
-			res->u.boolean = (x->u.boolean == y->u.boolean);
+			res->u.boolean = (x->u.boolean == y->u.boolean ? TRUE : FALSE);
 			return;
 		case JS_OBJECT:
 			//refer the same object
-			res->u.boolean = (x->u.object == y->u.object);
+			res->u.boolean = (x->u.object == y->u.object ? TRUE: FALSE);
 			return;
 		default:
 			//未发现正确的类型
@@ -152,20 +151,19 @@ void JsEqualityExpressionSeqCompare( struct JsValue *x, struct JsValue *y,
 			res->u.boolean = TRUE;
 			return;
 		case JS_NUMBER:
-			if (x->u.number == JS_VALUE_NUMBER_NAN 
-					|| y->u.number == JS_VALUE_NUMBER_NAN)
-				res->u.boolean = TRUE;
+			if (isnan(x->u.number) || isnan(y->u.number))
+				res->u.boolean = FALSE;
 			else
-				res->u.boolean =  (x->u.number == y->u.number);
+				res->u.boolean =  (x->u.number == y->u.number ? TRUE:FALSE);
 			return;
 		case JS_STRING:
-			res->u.boolean = (strcmp(x->u.string,y->u.string) == 0);
+			res->u.boolean = (strcmp(x->u.string,y->u.string) == 0 ? TRUE : FALSE);
 			return;
 		case JS_BOOLEAN:
-			res->u.boolean = (x->u.boolean == y->u.boolean);
+			res->u.boolean = (x->u.boolean == y->u.boolean ? TRUE: FALSE);
 			return;
 		case JS_OBJECT:
-			res->u.boolean = (x->u.object == y->u.object);
+			res->u.boolean = (x->u.object == y->u.object ? TRUE : FALSE);
 			return;
 		default:
 			//未发现正确的类型

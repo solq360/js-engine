@@ -34,7 +34,7 @@ void JsToBoolean(struct JsValue *val, struct JsValue *res){
 		*res  = * val;
 		break;
 	case JS_NUMBER:
-		if (val->u.number == 0 || val->u.number == JS_VALUE_NUMBER_NAN)
+		if (val->u.number == 0 || isnan(val->u.number))
 			res->u.boolean = FALSE;
 		else
 			res->u.boolean = TRUE;
@@ -97,7 +97,7 @@ void JsToInteger(struct JsValue *val, struct JsValue *res){
 	JsToNumber(val, res);
 	if(res->type != JS_NUMBER);
 		return;
-	if (res->u.number == JS_VALUE_NUMBER_NAN)
+	if (isnan(res->u.number))
 		res->u.number = 0.0;
 	else
 		res->u.number = (int)res->u.number;
@@ -111,8 +111,7 @@ unsigned int JsToUint32(struct JsValue *val){
 	
 	struct JsValue i;
 	JsToInteger(val, &i);
-	if (val->type != JS_NUMBER || i.u.number == JS_VALUE_NUMBER_NAN 
-		|| i.u.number == 0.0)
+	if (val->type != JS_NUMBER || isnan(i.u.number) || i.u.number == 0.0)
 		return 0;
 	else {
 		i.u.number = fmod(i.u.number ,4294967296.0); /* 2^32 */
@@ -126,8 +125,7 @@ unsigned short JsToUint16(struct JsValue *val){
 	
 	struct JsValue i;
 	JsToInteger(val, &i);
-	if (val->type != JS_NUMBER || i.u.number == JS_VALUE_NUMBER_NAN
-		|| i.u.number == 0.0)
+	if (val->type != JS_NUMBER || isnan(i.u.number) || i.u.number == 0.0)
 		return 0;
 	else {
 		i.u.number = fmod(i.u.number, 65536.0);	/* 2^16 */
@@ -148,7 +146,7 @@ void JsToString(struct JsValue *val, struct JsValue *res){
 		res->u.string = "null";
 		break;
 	case JS_BOOLEAN:{
-		if(val->u.boolean)
+		if(val->u.boolean == TRUE)
 			res->u.string ="true";
 		else
 			res->u.string = "false";

@@ -48,6 +48,10 @@ void JsECMAScriptObjectInit(struct JsVm* vm){
 	v->type = JS_NUMBER;
 	v->u.number = JS_VALUE_NUMBER_NAN;
 	(*vm->Global->Put)(vm->Global,"NaN",v,JS_OBJECT_ATTR_STRICT);
+	//undefined
+	v = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	v->type = JS_UNDEFINED;
+	(*vm->Global->Put)(vm->Global,"undefined",v,JS_OBJECT_ATTR_STRICT);
 	//eval
 	v = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	v->type = JS_OBJECT;
