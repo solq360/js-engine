@@ -627,7 +627,7 @@ static struct JsObject* jsCreateActivationObject(struct JsObject* fun, int argc,
 	return activationObj;
 }
 static struct JsValue* jsCreateArguments(struct JsObject* fun,int argc, struct JsValue** argv){
-	int i,size;
+	int i;
 	struct JsObject* argumentsObj = JsCreateStandardObject(NULL);
 	struct JsValue* length = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	length->type = JS_NUMBER;
@@ -643,11 +643,12 @@ static struct JsValue* jsCreateArguments(struct JsObject* fun,int argc, struct J
 	for(i =0 ; i < argc;++i){
 		//计算整数的位数
 		int number = i;
+		int bit = 0;
 		while(number){
 			number /=10;
-			size++;
+			bit++;
 		}
-		char* buf = (char*)JsMalloc(size + 4);
+		char* buf = (char*)JsMalloc(bit + 4);
 		sprintf(buf,"%d",i);
 		(*argumentsObj->Put)(argumentsObj,buf,argv[i],JS_OBJECT_ATTR_DONTENUM);
 	}

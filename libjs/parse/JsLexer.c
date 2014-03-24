@@ -456,8 +456,8 @@ static void yy_fatal_error (yyconst char msg[] ,yyscan_t yyscanner );
 	yyg->yy_c_buf_p = yy_cp;
 
 /* %% [4.0] data tables for the DFA and the user's section 1 definitions go here */
-#define YY_NUM_RULES 63
-#define YY_END_OF_BUFFER 64
+#define YY_NUM_RULES 64
+#define YY_END_OF_BUFFER 65
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -467,26 +467,26 @@ struct yy_trans_info
 	};
 static yyconst flex_int16_t yy_accept[185] =
     {   0,
-        0,    0,    0,    0,   64,   58,   57,   58,   58,   51,
-       58,   58,   58,   58,   58,   58,   58,   54,   58,   58,
-       58,   58,   51,   51,   51,   51,   51,   51,   51,   51,
-       51,   51,   51,   51,   58,   60,   62,   61,   25,    0,
-       52,    0,   51,   24,    1,    2,    0,   53,    0,   36,
-       30,   29,   23,   22,   55,    0,    9,    0,   54,   54,
-       54,   20,   19,    0,   15,   32,   47,   51,   51,   51,
-       51,   10,   51,   51,   51,   51,   51,   16,   17,   51,
-       51,   51,   51,   51,   51,   51,   51,   51,   51,   27,
-       28,   60,   59,   35,   52,   53,    0,   56,   54,   54,
+        0,    0,    0,    0,   65,   59,   58,   59,   59,   52,
+       59,   59,   59,   59,   59,   59,   59,   55,   59,   59,
+       59,   59,   52,   52,   52,   52,   52,   52,   52,   52,
+       52,   52,   52,   52,   59,   61,   63,   62,   26,    0,
+       53,    0,   52,   25,    1,    2,    0,   54,    0,   37,
+       31,   30,   24,   23,   56,    0,    9,    0,   55,   55,
+       55,   21,   20,   12,   16,   33,   48,   52,   52,   52,
+       52,   10,   52,   52,   52,   52,   52,   17,   18,   52,
+       52,   52,   52,   52,   52,   52,   52,   52,   52,   28,
+       29,   61,   60,   36,   53,   54,    0,   57,   55,   55,
 
-       54,   21,   34,   33,   42,   51,   51,   51,   51,   51,
-       51,   51,   51,   51,   13,   51,   51,   26,   51,   51,
-       51,   51,   51,   51,   40,   51,   44,   51,   51,   43,
-       51,    4,   51,   51,   51,   51,   11,   51,   51,   51,
-       51,   50,   51,   51,   38,   51,   48,   51,   45,   51,
-        3,    5,   51,   51,   51,   49,   51,   51,   51,   51,
-       51,   39,   51,   46,   51,   51,    8,   51,   51,   51,
-       31,   37,   41,   51,    7,   12,   51,   51,    6,   14,
-       51,   51,   18,    0
+       55,   22,   35,   34,   43,   52,   52,   52,   52,   52,
+       52,   52,   52,   52,   14,   52,   52,   27,   52,   52,
+       52,   52,   52,   52,   41,   52,   45,   52,   52,   44,
+       52,    4,   52,   52,   52,   52,   11,   52,   52,   52,
+       52,   51,   52,   52,   39,   52,   49,   52,   46,   52,
+        3,    5,   52,   52,   52,   50,   52,   52,   52,   52,
+       52,   40,   52,   47,   52,   52,    8,   52,   52,   52,
+       32,   38,   42,   52,    7,   13,   52,   52,    6,   15,
+       52,   52,   19,    0
     } ;
 
 static yyconst flex_int32_t yy_ec[256] =
@@ -645,22 +645,22 @@ static yyconst flex_int16_t yy_chk[265] =
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static yyconst flex_int32_t yy_rule_can_match_eol[64] =
+static yyconst flex_int32_t yy_rule_can_match_eol[65] =
     {   0,
 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 
-    0, 0, 1, 0,     };
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0, 
+    0, 0, 0, 1, 0,     };
 
-static yyconst flex_int16_t yy_rule_linenum[63] =
+static yyconst flex_int16_t yy_rule_linenum[64] =
     {   0,
        21,   22,   23,   24,   25,   26,   27,   28,   29,   30,
        31,   32,   33,   34,   35,   36,   37,   38,   39,   40,
        41,   42,   43,   44,   45,   46,   47,   48,   49,   50,
        51,   52,   53,   54,   55,   56,   57,   58,   59,   60,
        61,   62,   63,   64,   65,   66,   67,   68,   69,   70,
-       72,   78,   85,   92,   98,   99,  100,  101,  111,  112,
-      113,  114
+       71,   73,   79,   86,   93,   99,  100,  101,  102,  112,
+      113,  114,  115
     } ;
 
 /* The intent behind this definition is that it'll catch
@@ -1090,13 +1090,13 @@ do_action:	/* This label is used only to access EOF actions. */
 			{
 			if ( yy_act == 0 )
 				fprintf( stderr, "--scanner backing up\n" );
-			else if ( yy_act < 63 )
+			else if ( yy_act < 64 )
 				fprintf( stderr, "--accepting rule at line %ld (\"%s\")\n",
 				         (long)yy_rule_linenum[yy_act], yytext );
-			else if ( yy_act == 63 )
+			else if ( yy_act == 64 )
 				fprintf( stderr, "--accepting default rule (\"%s\")\n",
 				         yytext );
-			else if ( yy_act == 64 )
+			else if ( yy_act == 65 )
 				fprintf( stderr, "--(end of buffer or a NUL)\n" );
 			else
 				fprintf( stderr, "--EOF (start condition %d)\n", YY_START );
@@ -1170,222 +1170,216 @@ return tELSE;
 case 12:
 YY_RULE_SETUP
 #line 32 "JsLexer.l"
-return tFINALLY;
+return tEQ;
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 33 "JsLexer.l"
-return tFOR;
+return tFINALLY;
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 34 "JsLexer.l"
-return tFUNCTION;
+return tFOR;
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
 #line 35 "JsLexer.l"
-return tGE;
+return tFUNCTION;
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
 #line 36 "JsLexer.l"
-return tIF;
+return tGE;
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
 #line 37 "JsLexer.l"
-return tIN;
+return tIF;
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
 #line 38 "JsLexer.l"
-return tINSTANCEOF;
+return tIN;
 	YY_BREAK
 case 19:
 YY_RULE_SETUP
 #line 39 "JsLexer.l"
-return tLE;
+return tINSTANCEOF;
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 40 "JsLexer.l"
-return tLSHIFT;
+return tLE;
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 41 "JsLexer.l"
-return tLSHIFTEQ;
+return tLSHIFT;
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 42 "JsLexer.l"
-return tMINUSEQ;
+return tLSHIFTEQ;
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 43 "JsLexer.l"
-return tMINUSMINUS;
+return tMINUSEQ;
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 44 "JsLexer.l"
-return tMODEQ;
+return tMINUSMINUS;
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 45 "JsLexer.l"
-return tNE;
+return tMODEQ;
 	YY_BREAK
 case 26:
 YY_RULE_SETUP
 #line 46 "JsLexer.l"
-return tNEW;
+return tNE;
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 47 "JsLexer.l"
-return tOREQ;
+return tNEW;
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 48 "JsLexer.l"
-return tOROR;
+return tOREQ;
 	YY_BREAK
 case 29:
 YY_RULE_SETUP
 #line 49 "JsLexer.l"
-return tPLUSEQ;
+return tOROR;
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
 #line 50 "JsLexer.l"
-return tPLUSPLUS;
+return tPLUSEQ;
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
 #line 51 "JsLexer.l"
-return tRETURN;
+return tPLUSPLUS;
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
 #line 52 "JsLexer.l"
-return tRSHIFT;
+return tRETURN;
 	YY_BREAK
 case 33:
 YY_RULE_SETUP
 #line 53 "JsLexer.l"
-return tRSHIFTEQ;
+return tRSHIFT;
 	YY_BREAK
 case 34:
 YY_RULE_SETUP
 #line 54 "JsLexer.l"
-return tSEQ;
+return tRSHIFTEQ;
 	YY_BREAK
 case 35:
 YY_RULE_SETUP
 #line 55 "JsLexer.l"
-return tSNE;
+return tSEQ;
 	YY_BREAK
 case 36:
 YY_RULE_SETUP
 #line 56 "JsLexer.l"
-return tSTAREQ;
+return tSNE;
 	YY_BREAK
 case 37:
 YY_RULE_SETUP
 #line 57 "JsLexer.l"
-return tSWITCH;
+return tSTAREQ;
 	YY_BREAK
 case 38:
 YY_RULE_SETUP
 #line 58 "JsLexer.l"
-return tTHIS;
+return tSWITCH;
 	YY_BREAK
 case 39:
 YY_RULE_SETUP
 #line 59 "JsLexer.l"
-return tTHROW;
+return tTHIS;
 	YY_BREAK
 case 40:
 YY_RULE_SETUP
 #line 60 "JsLexer.l"
-return tTRY;
+return tTHROW;
 	YY_BREAK
 case 41:
 YY_RULE_SETUP
 #line 61 "JsLexer.l"
-return tTYPEOF;
+return tTRY;
 	YY_BREAK
 case 42:
 YY_RULE_SETUP
 #line 62 "JsLexer.l"
-return tURSHIFT;
+return tTYPEOF;
 	YY_BREAK
 case 43:
 YY_RULE_SETUP
 #line 63 "JsLexer.l"
-return tURSHIFTEQ;
+return tURSHIFT;
 	YY_BREAK
 case 44:
 YY_RULE_SETUP
 #line 64 "JsLexer.l"
-return tVAR;
+return tURSHIFTEQ;
 	YY_BREAK
 case 45:
 YY_RULE_SETUP
 #line 65 "JsLexer.l"
-return tVOID;
+return tVAR;
 	YY_BREAK
 case 46:
 YY_RULE_SETUP
 #line 66 "JsLexer.l"
-return tWHILE;
+return tVOID;
 	YY_BREAK
 case 47:
 YY_RULE_SETUP
 #line 67 "JsLexer.l"
-return tXOREQ;
+return tWHILE;
 	YY_BREAK
 case 48:
 YY_RULE_SETUP
 #line 68 "JsLexer.l"
-return tTRUE;
+return tXOREQ;
 	YY_BREAK
 case 49:
 YY_RULE_SETUP
 #line 69 "JsLexer.l"
-return tFALSE;
+return tTRUE;
 	YY_BREAK
 case 50:
 YY_RULE_SETUP
 #line 70 "JsLexer.l"
-return tNULL;
+return tFALSE;
 	YY_BREAK
 case 51:
 YY_RULE_SETUP
-#line 72 "JsLexer.l"
+#line 71 "JsLexer.l"
+return tNULL;
+	YY_BREAK
+case 52:
+YY_RULE_SETUP
+#line 73 "JsLexer.l"
 {
 	yylval->string = (char*)JsMalloc(yyleng+1);
 	strcpy(yylval->string,yytext);
     return tIDENT;
 }
 	YY_BREAK
-case 52:
-/* rule 52 can match eol */
-YY_RULE_SETUP
-#line 78 "JsLexer.l"
-{
-	yylval->string = (char*)JsMalloc(yyleng-1);
-	memcpy(yylval->string,yytext+1,yyleng-2);
-	yylval->string[yyleng-2] = '\0';
-    return tSTRING;
-}
-	YY_BREAK
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 85 "JsLexer.l"
+#line 79 "JsLexer.l"
 {
 	yylval->string = (char*)JsMalloc(yyleng-1);
 	memcpy(yylval->string,yytext+1,yyleng-2);
@@ -1394,35 +1388,46 @@ YY_RULE_SETUP
 }
 	YY_BREAK
 case 54:
+/* rule 54 can match eol */
 YY_RULE_SETUP
-#line 92 "JsLexer.l"
+#line 86 "JsLexer.l"
+{
+	yylval->string = (char*)JsMalloc(yyleng-1);
+	memcpy(yylval->string,yytext+1,yyleng-2);
+	yylval->string[yyleng-2] = '\0';
+    return tSTRING;
+}
+	YY_BREAK
+case 55:
+YY_RULE_SETUP
+#line 93 "JsLexer.l"
 {
     yylval->number = atof(yytext);
     return tNUMBER;
 }
 	YY_BREAK
-case 55:
+case 56:
 YY_RULE_SETUP
-#line 98 "JsLexer.l"
+#line 99 "JsLexer.l"
 BEGIN(IN_COMMENT);
 	YY_BREAK
-case 56:
+case 57:
 *yy_cp = yyg->yy_hold_char; /* undo effects of setting up yytext */
 yyg->yy_c_buf_p = yy_cp -= 1;
 YY_DO_BEFORE_ACTION; /* set up yytext again */
 YY_RULE_SETUP
-#line 99 "JsLexer.l"
+#line 100 "JsLexer.l"
 { }
 	YY_BREAK
-case 57:
-/* rule 57 can match eol */
-YY_RULE_SETUP
-#line 100 "JsLexer.l"
-{ return tLINETERMINATOR;}
-	YY_BREAK
 case 58:
+/* rule 58 can match eol */
 YY_RULE_SETUP
 #line 101 "JsLexer.l"
+{ return tLINETERMINATOR;}
+	YY_BREAK
+case 59:
+YY_RULE_SETUP
+#line 102 "JsLexer.l"
 { 
     if (!isspace(*yytext))
     {
@@ -1432,15 +1437,10 @@ YY_RULE_SETUP
 	YY_BREAK
 /* INITIAL */
 
-case 59:
-YY_RULE_SETUP
-#line 111 "JsLexer.l"
-BEGIN(INITIAL);
-	YY_BREAK
 case 60:
 YY_RULE_SETUP
 #line 112 "JsLexer.l"
-{}
+BEGIN(INITIAL);
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
@@ -1448,18 +1448,23 @@ YY_RULE_SETUP
 {}
 	YY_BREAK
 case 62:
-/* rule 62 can match eol */
 YY_RULE_SETUP
 #line 114 "JsLexer.l"
 {}
 	YY_BREAK
-
 case 63:
+/* rule 63 can match eol */
 YY_RULE_SETUP
-#line 116 "JsLexer.l"
+#line 115 "JsLexer.l"
+{}
+	YY_BREAK
+
+case 64:
+YY_RULE_SETUP
+#line 117 "JsLexer.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 1463 "JsLexer.c"
+#line 1468 "JsLexer.c"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(IN_COMMENT):
 	yyterminate();
@@ -2730,6 +2735,6 @@ void yyfree (void * ptr , yyscan_t yyscanner)
 
 /* %ok-for-header */
 
-#line 116 "JsLexer.l"
+#line 117 "JsLexer.l"
 
 

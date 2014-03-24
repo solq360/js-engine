@@ -74,7 +74,7 @@ void JsOFInit(struct JsVm* vm){
 	vPrototype = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	vPrototype->type = JS_OBJECT;
 	vPrototype->u.object = fun_proto;
-	(*obj->Put)(fun,"prototype",vPrototype,JS_OBJECT_ATTR_STRICT);	
+	(*fun->Put)(fun,"prototype",vPrototype,JS_OBJECT_ATTR_STRICT);	
 	
 	//向Global添加Object和Function
 	struct JsValue* vObject = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
@@ -275,25 +275,25 @@ static void JsFunctionProtoInit(struct JsObject* obj,struct JsObject* obj_proto,
 	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	vProperty->type = JS_OBJECT;
 	vProperty->u.object = fun;
-	(*obj_proto->Put)(fun_proto,"constructor",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	(*fun_proto->Put)(fun_proto,"constructor",vProperty,JS_OBJECT_ATTR_DONTENUM);
 	//toString
 	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	vProperty->type = JS_OBJECT;
 	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
 	vProperty->u.object->Call = &JsFunctionProtoToStringCall;
-	(*obj_proto->Put)(obj_proto,"toString",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	(*fun_proto->Put)(fun_proto,"toString",vProperty,JS_OBJECT_ATTR_DONTENUM);
 	//apply
 	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	vProperty->type = JS_OBJECT;
 	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
 	vProperty->u.object->Call = &JsFunctionProtoApplyCall;
-	(*obj_proto->Put)(obj_proto,"apply",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	(*fun_proto->Put)(fun_proto,"apply",vProperty,JS_OBJECT_ATTR_DONTENUM);
 	//call
 	vProperty= (struct JsValue*)JsMalloc(sizeof(struct JsValue));
 	vProperty->type = JS_OBJECT;
 	vProperty->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
 	vProperty->u.object->Call = &JsFunctionProtoCallCall;
-	(*obj_proto->Put)(obj_proto,"call",vProperty,JS_OBJECT_ATTR_DONTENUM);
+	(*fun_proto->Put)(fun_proto,"call",vProperty,JS_OBJECT_ATTR_DONTENUM);
 }
 
 
@@ -319,7 +319,10 @@ static void JsFunctionProtoApplyCall(struct JsObject *obj, struct JsObject *this
 	struct JsObject* this0;
 	int argc0;
 	struct JsValue** argv0;
-	if(obj->Call == NULL){
+	if(thisobj == NULL){
+		JsThrowString("null point this");
+	}
+	if(thisobj->Call == NULL){
 		JsThrowString("TypeError");
 		return;
 	}
@@ -385,7 +388,7 @@ static void JsFunctionProtoApplyCall(struct JsObject *obj, struct JsObject *this
 		//argc大小错误
 		JsAssert(FALSE);
 	}
-	(*obj->Call)(obj,this0,argc0,argv0,res);
+	(*thisobj->Call)(thisobj,this0,argc0,argv0,res);
 }
 			
 /*15.3.4.4*/
@@ -393,8 +396,12 @@ static void JsFunctionProtoCallCall(struct JsObject *obj, struct JsObject *thiso
 			int argc, struct JsValue **argv, struct JsValue *res){
 	struct JsObject* this0;
 	int argc0;
-	struct JsValue** argv0;		
-	if(obj->Call == NULL){
+	struct JsValue** argv0;
+	if(thisobj == NULL){
+		JsThrowString("null point this");
+		return;
+	}
+	if(thisobj->Call == NULL){
 		JsThrowString("TypeError");
 		return;
 	}
@@ -427,7 +434,5 @@ static void JsFunctionProtoCallCall(struct JsObject *obj, struct JsObject *thiso
 		//argc大小错误
 		JsAssert(FALSE);
 	}
-	(*obj->Call)(obj,this0,argc0,argv0,res);	
-}		
-
-
+	(*thisobj->Call)(thisobj,this0,argc0,argv0,res);	
+}

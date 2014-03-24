@@ -16,7 +16,7 @@
 #define tDIVEQ		266 // /=
 #define tDO		    267 // do
 #define tELSE		268 // else
-#define tEQ		    269 // = 
+#define tEQ		    269 // == 
 #define tFINALLY	270 // finally
 #define tFOR		271 // for
 #define tFUNCTION	272 // function

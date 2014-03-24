@@ -29,6 +29,7 @@
 "/=" 			return tDIVEQ;
 "do" 			return tDO;
 "else" 			return tELSE;
+"=="			return tEQ;
 "finally" 		return tFINALLY;
 "for"  			return tFOR;
 "function" 		return tFUNCTION;

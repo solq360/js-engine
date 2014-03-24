@@ -242,7 +242,6 @@ void JsGetValue(struct JsValue* v, struct JsValue* res){
 		return;
 	}
 	if (v->u.reference.base == NULL){
-		JsPrint("ReferenceError\n");
 		JsThrowString("ReferenceError");
 		return;
 	}
@@ -255,7 +254,6 @@ void JsPutValue(struct JsValue* v,struct JsValue* w,struct JsValue* res){
 	struct JsObject *target;
 	res->type = JS_BOOLEAN;
 	if (v->type != JS_REFERENCE){
-		JsPrint("ReferenceError\n");
 		JsThrowString("ReferenceError");
 	}
 	target = v->u.reference.base;
