@@ -222,3 +222,15 @@
 	print("i--,i=1"+(i--));
 	
 })(0,1,2,3,"string",true,false,{a:1},function(){});
+
+
+	function b (){
+		va.a;
+	}
+	function a(){
+		return function(){
+			b();
+		};
+	}
+	var f = a();
+	new f();

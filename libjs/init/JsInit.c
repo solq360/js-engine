@@ -86,8 +86,8 @@ static	void JsGlobalEval(struct JsObject *self, struct JsObject *thisobj, int ar
 	//执行函数
 	res->type =JS_UNDEFINED;
 	struct JsAstNode * ast;
-	JsParseString(e->vm->debug ? JS_PARSER_DEBUG_ERROR 
-		: JS_PARSER_DEBUG_CLOSE,argv[0]->u.string,&ast);
+	ast = JsParseString(e->vm->debug ? JS_PARSER_DEBUG_ERROR 
+		: JS_PARSER_DEBUG_CLOSE,argv[0]->u.string);
 	if(ast == NULL)
 		JsThrowString("SytaxError");
 	JsEval(e,ast,res);

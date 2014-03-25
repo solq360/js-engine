@@ -33,10 +33,10 @@ void JsGUnlock(){
 	pthread_mutex_unlock(&globalLock);
 }
 
-void JsCreateLock(JsLock* lock){
+JsLock JsCreateLock(){
 	pthread_mutex_t* a = (pthread_mutex_t*) JsMalloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(a,lock_attr);
-	*lock = (JsLock)a;
+	return a;
 }
 void JsLockup(JsLock lock){
 	JsAssert(lock != NULL);

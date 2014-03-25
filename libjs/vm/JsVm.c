@@ -35,7 +35,7 @@ struct JsVm* JsCreateVm(int debug,int mSize, char** mPath,
 	g_JsVm->debug = debug;
 	g_JsVm->trace = traceFn;
 	
-	JsListInit(&g_JsVm->engines);
+	g_JsVm->engines = JsCreateList();
 	//初始化Ecmascript的对象
 	JsECMAScriptObjectInit(g_JsVm);
 	JsAssert(g_JsVm->Global != NULL);
@@ -44,7 +44,7 @@ struct JsVm* JsCreateVm(int debug,int mSize, char** mPath,
 	g_JsVm->mPath = mPath;
 	JsLoadShareModule(g_JsVm);
 	
-	JsCreateLock(&g_JsVm->lock);
+	g_JsVm->lock = JsCreateLock();
 	JsPostInitModules();
 	
 	return g_JsVm;

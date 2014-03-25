@@ -26,21 +26,21 @@ struct JsValue;
 	struct JsValue* e0 = NULL;
 	JS_CATCH(e0){
 		1. 处理错误
+			//打印ExceptionStack
+			JsList l = JsGetExceptionStack();
+			JsPrintStack(l);
 		2. 继续抛出异常
-			JsThrowException(e0);
+			JsReThrowException(e0);
 	
 	}
 	JS_TRY(1){
-		可以放置表达式(函数调用, 赋值,...)
-		如果使用return , break 语句则需要在之前调用 JsOmitDefender()
-		
+		//
 	}
-	doFinally工作
 	struct JsValue* e1 = NULL;
 	JS_CATCH(e1){
 		1. 处理错误
 		2. 继续抛出异常
-			JsThrowException(e1);
+			JsReThrowException(e1);
 	
 	}
 */
@@ -55,7 +55,7 @@ struct JsValue;
 
 /*Catch之后, 异常已经被清除了, 并且e会被赋值 [NULL,Value] */
 #define JS_CATCH(e) \
-		if((e = JsGetException()))
+		if((e = JsCatchException()))
 		
 		
 /****************************************************************************
@@ -72,20 +72,24 @@ void JsBuildDefender(void* p);
 //在环境中删除一个最近的还原点
 void JsOmitDefender();
 
-//抛出一个String类型的错误
+//抛出一个String类型的错误, 异常位置为 TlsContext.stack + TlsContext.pc
 void JsThrowString(char* msg);
 
-//抛出一个error
+//抛出一个error,异常位置为 TlsContext.stack + TlsContext.pc
 void JsThrowException(struct JsValue* e);
 
+//继续抛出这个错误, 位置信息不变
+void JsReThrowException(struct JsValue* e);
 
-//检查当前环境是否存在异常, 当并不清除错误
+//检查当前环境是否存在异常
 int JsCheckException();
 
-//获得当前错误, 并且清除当前错误, 如果没有则返回NULL
+//获得当前错误, 如果没有则返回NULL
 struct JsValue* JsGetException();
+//获得当前错误, 如果没有则返回NULL, *并且清除当前错误
+struct JsValue* JsCatchException();
 
-//设置一个错误, NULL表示清除错误
-void JsSetException(struct JsValue* v);
+//获得当前error的位置信息
+JsList JsGetExceptionStack();
 
 #endif

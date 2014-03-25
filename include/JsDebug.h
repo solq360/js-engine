@@ -17,18 +17,15 @@ struct JsLocation{
 	int lineno;
 };
 
-
-struct JsStack{
-	struct JsLocation* loc;
-	struct JsFunction* function; //NULL为Global
-};
-
 /****************************************************************************
 									通用API
 *****************************************************************************/
 //Print函数组
 void JsPrintString(char* fmt,...);
 void JsPrintValue(struct JsValue* v);
+//struct JsLocation .
+void JsPrintStack(JsList stack);
+
 //Assert
 void JsAssert(int v);
 #endif

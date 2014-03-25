@@ -13,8 +13,8 @@ struct JsNode{
 	void* data;
 };
 
-void JsListInit(void** head){
-	*head  = JsMalloc(sizeof(struct JsNodeHead));
+JsList JsCreateList(){
+	return (JsList)JsMalloc(sizeof(struct JsNodeHead));
 }
 
 
@@ -111,8 +111,10 @@ JsList JsListCopy(JsList dst,JsList src){
 	head =  src;
 	p = dst;
 	//没有空间或者超出范围
-	if(head->size == 0)
+	if(head->size == 0){
+		p->size = 0;
 		return p;
+	}
 	npp1 = &head->first;
 	npp2 = &p->first;
 	

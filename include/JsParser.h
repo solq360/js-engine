@@ -15,6 +15,6 @@
 *****************************************************************************/
 struct JsAstNode;
 //filename = NULL的时候, 表示从stdin获取
-void JsParseFile(int debug, char* filename, struct JsAstNode** ast);
-void JsParseString(int debug, char* string, struct JsAstNode** ast);
+struct JsAstNode* JsParseFile(int debug, char* filename);
+struct JsAstNode* JsParseString(int debug, char* string);
 #endif

@@ -116,7 +116,7 @@ struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,in
 	function->name = name;
 	function->sync = sync;
 	if(sync){
-		JsCreateLock(function->fSyncLock);
+		function->fSyncLock = JsCreateLock();
 	}
 	
 	//配置prototype
@@ -151,12 +151,12 @@ static struct JsObject* JsCreateBaseObject(struct JsObject* o,int isf,int level,
 	//pb = (struct JsObjectPb*)obj->pb[JS_STANDARD_OBJECT_FLOOR] = JsMalloc(sizeof(struct JsPb));
 	obj->Prototype = NULL;
 	obj->Class = NULL;
-	JsCreateLock(&obj->SyncLock);
+	obj->SyncLock = JsCreateLock();
 	obj->Scope = NULL;
 	if(isf == TRUE){
 		JsFindValue(NULL,"Function",&v);
 		obj->Class = "Function";
-		JsListInit(&obj->Scope);
+		obj->Scope = JsCreateList();
 		if(scope)
 			JsListCopy(obj->Scope,scope);
 		else
@@ -200,9 +200,9 @@ static struct JsObject* JsCreateBaseObject(struct JsObject* o,int isf,int level,
 	obj->pb[JS_STANDARD_OBJECT_FLOOR] = NULL;
 	//构建sb
 	sb = (struct JsStandardSelfBlock* )JsMalloc(sizeof(struct JsStandardSelfBlock));	
-	JsListInit(&sb->propertys);	
-	JsListInit(&sb->iterators);
-	JsCreateLock(&sb->lock);
+	sb->propertys = JsCreateList();	
+	sb->iterators = JsCreateList();
+	sb->lock = JsCreateLock();
 	sb->function = NULL;
 	obj->sb[JS_STANDARD_OBJECT_FLOOR] = sb;
 	
@@ -482,7 +482,7 @@ char* JsStandardNextValue(struct JsObject** next, JsIter* piter,int initialized)
 	iter = *piter;
 	
 	if(iter->useable == FALSE){
-		JsThrowString("Iterator Throw Error");
+		JsThrowString("IteratorError");
 		return NULL;
 	}
 	//迭代已经完成
@@ -542,7 +542,7 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	//ActivationObject对象处理
 	ac = JsCreateActivationObject(self,argc,argv);
 	//创建一个新的Scope List
-	JsListInit(&newScope);
+	newScope = JsCreateList();
 	JsListCopy(newScope,self->Scope);
 	JsListPush(newScope,ac);
 	
@@ -556,15 +556,6 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 	saveVarattr = e->exec->varattr;
 	e->exec->varattr = JS_OBJECT_ATTR_DONTDELETE;
 	
-	struct JsStack* stack = (struct JsStack*)JsMalloc(sizeof(struct JsStack));
-	stack->loc = NULL;
-	stack->function = f;
-	if(f->type == JS_FUNCTION_EVAL){
-		struct JsAstNode* node = (struct JsAstNode*)f->data;
-		stack->loc = node->location;
-	}
-	JsListPush(e->exec->stack,stack);
-	
 	//执行函数
 	res->type =JS_UNDEFINED;
 	struct JsValue* error = NULL;
@@ -575,13 +566,13 @@ void JsStandardCall(struct JsObject *self,struct JsObject *thisobj,
 		if(f->sync)
 			JsUnlock(f->fSyncLock);
 		//继续抛出错误
-		JsThrowException(error);
+		JsReThrowException(error);
 	}
 	//还原环境
 	e->exec->scope = saveScope;
 	e->exec->thisObj = saveThisObj;
 	e->exec->varattr = saveVarattr;
-	JsListRemove(e->exec->stack,JS_LIST_END);
+	
 	
 	//结果处理
 	if(res->type == JS_COMPLETION){

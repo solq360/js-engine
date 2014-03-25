@@ -34,10 +34,10 @@ struct JsEngine* JsCreateEngine(){
 	e->state = JS_ENGINE_KERNEL;
 	
 	e->exec = NULL;
-	JsListInit(&e->waits);
-	JsListInit(&e->pools);
+	e->waits = JsCreateList();
+	e->pools = JsCreateList();
 	
-	JsCreateLock(&e->lock);
+	e->lock = JsCreateLock();
 	return e;
 }
 
@@ -89,7 +89,10 @@ void JsDispatch(struct JsContext* c){
 		}
 		struct JsValue* error = NULL;
 		JS_CATCH(error){
+			JsPrintString("\n\nCatch Exception: ");
 			JsPrintValue(error);
+			JsPrintStack(JsGetExceptionStack());
+			JsPrintString("\n\n");
 		}
 		//还原环境
 		JsSetTlsEngine(tlsEngine);
@@ -116,7 +119,6 @@ void JsContext2Engine(struct JsEngine* e, struct JsContext* c){
 	JsLockup(e->lock);
 	JsListPush(e->pools,c);
 	JsUnlock(e->lock);
-	
 }
 void JsStopEngine(struct JsEngine* e){
 	

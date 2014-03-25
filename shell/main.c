@@ -19,9 +19,9 @@
 static void JsContextTask(struct JsEngine* e){
 	struct JsAstNode* ast = NULL;
 	struct JsValue v;
-	JsParseFile(JS_PARSER_DEBUG_ERROR,"../file.js",&ast);
+	ast = JsParseFile(JS_PARSER_DEBUG_ERROR,"../file.js");
+	JsAssert(ast != NULL);
 	JsEval(e,ast,&v);
-	printf("hello");
 }
 //一个参数value
 static void JsPrintFn(struct JsEngine* e,void* data,struct JsValue* res){

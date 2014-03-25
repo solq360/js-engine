@@ -45,15 +45,13 @@ struct JsContext* JsCopyContext(struct JsContext* c){
 	struct JsContext* context;
 	
 	context = (struct JsContext*)JsMalloc(sizeof(struct JsContext));
-	JsListInit(&context->scope);
-	JsListInit(&context->stack);
+	context->scope = JsCreateList();
+	context->stack = JsCreateList();
 	if(c == NULL){
 		context->engine = NULL;
 		JsListPush(context->scope,JsGetVm()->Global);
-		struct JsStack* stack = (struct JsStack*)JsMalloc(sizeof(struct JsStack));
-		stack->loc = NULL;
-		stack->function = NULL;//表示Global
-		JsListPush(context->stack,stack);
+		//stack 仅仅进行初始化
+		context->pc = NULL;
 		context->thisObj = JsGetVm()->Global;
 		/*10.2.1*/
 		context->varattr = JS_OBJECT_ATTR_DONTDELETE;
@@ -64,6 +62,7 @@ struct JsContext* JsCopyContext(struct JsContext* c){
 		context->engine = c->engine;
 		JsListCopy(context->scope,c->scope);
 		JsListCopy(context->stack,c->stack);
+		context->pc = c->pc;
 		context->thisObj = c->thisObj;
 		context->varattr = c->varattr;
 		context->thread = c->thread;

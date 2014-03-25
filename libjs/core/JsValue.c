@@ -49,7 +49,7 @@ void JsToBoolean(struct JsValue *val, struct JsValue *res){
 		res->u.boolean = TRUE;
 		break;
 	default:
-		JsThrowString("JsValue.c : ToBoolean ERROR");
+		JsThrowString("JsToBooleanError");
 	}
 }
 void JsToNumber(struct JsValue *val, struct JsValue *res){
@@ -89,7 +89,7 @@ void JsToNumber(struct JsValue *val, struct JsValue *res){
 			break;
 	    }
 	default:
-		JsThrowString("JsValue.c : ToNumber ERROR");
+		JsThrowString("JsToNumbeError");
 	}
 
 }
@@ -177,7 +177,7 @@ void JsToString(struct JsValue *val, struct JsValue *res){
 		break;
 	}
 	default:
-		JsThrowString("JsValue.c : ToString ERROR");
+		JsThrowString("JsToStringError");
 		
 	}
 
@@ -210,7 +210,8 @@ void JsToObject(struct JsValue *val, struct JsValue *res){
 		JsFindValue(NULL,"String",&con0);
 		break;
 	default:
-		JsThrowString("JsValue.c : unknow type");
+		JsThrowString("JsToObjectError");
+		return;
 	}
 	//变换
 	con = &con0;
@@ -250,6 +251,7 @@ void JsPutValue(struct JsValue* v,struct JsValue* w,struct JsValue* res){
 	res->type = JS_BOOLEAN;
 	if (v->type != JS_REFERENCE){
 		JsThrowString("ReferenceError");
+		return;
 	}
 	target = v->u.reference.base;
 	if (target == NULL)

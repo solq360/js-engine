@@ -21,10 +21,17 @@ struct JsContext{
 	*/
 	JsList scope;
 	/*
-		struct JsStack 函数的堆栈表示
-		每个JsContext都唯一
+		struct JsLocation 函数的堆栈表示
+		每个JsContext都唯一, 基本在
+			JsEval.c:Call | Construct
+		中被配置
 	*/
 	JsList stack;
+	/*
+		当前代码语句, 每次遇到新的statement的时候被修改
+		JsEval.c : TRACE
+	*/
+	struct JsLocation* pc;
 	/*
 		当前this
 	*/

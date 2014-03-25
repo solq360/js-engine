@@ -15,7 +15,7 @@ void JsPostInitSys();
 
 /*加锁解锁会注册该锁到还原点上下文*/
 /*锁 API*/
-void JsCreateLock(JsLock* lock);
+JsLock JsCreateLock();
 void JsLockup(JsLock lock);
 void JsUnlock(JsLock lock);
 void JsDestroyLock(JsLock* lock);

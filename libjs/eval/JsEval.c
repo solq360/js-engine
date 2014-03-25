@@ -354,9 +354,11 @@ static void (*JsNodeClassEval[NODECLASS_MAX])(struct JsAstNode* ,
 		res->u.completion.type = t; 	\
 		res->u.completion.value = v; 	\
 	}while(0)
-	
+
+//跟踪最新的语句
 #define TRACE(loc,context, event)	\
 	do{							\
+		context->pc = loc;		\
 		if(JsGetVm()->debug == TRUE && JsGetVm()->trace != NULL){	\
 			JsGetVm()->trace(context->engine,loc,event);	\
 		}	\
@@ -893,8 +895,8 @@ ThrowStatement_eval(na, context, res)
 	TRACE(na->location, context, JS_TRACE_STATEMENT);
 	EVAL(n->a, context, &r1);
 	JsGetValue( &r1, r2);
-
 	TRACE(na->location, context, JS_TRACE_THROW);
+	
 	JsThrowException(r2);
 	/* NOTREACHED */
 }
@@ -958,7 +960,7 @@ TryStatement_catch_eval(na, context, res)
 		if (e){
 			//如果Catch抛出错误, 则继续抛出该错误
 		    TRACE(na->location, context, JS_TRACE_THROW);
-			JsThrowException(e);
+			JsReThrowException(e);
 		}
 	}
 }
@@ -991,7 +993,7 @@ TryStatement_finally_eval(na, context, res)
 	}else if ( e != NULL) {
 		//如果发现try中存在throw, 则继续抛出
 	    TRACE(na->location, context, JS_TRACE_THROW);
-	    JsThrowException(e);
+	    JsReThrowException(e);
 	}
 }
 
@@ -1025,14 +1027,14 @@ TryStatement_catchfinally_eval(na, context, res)
 	if(JsCheckException()){
 		//还原上下文
 		*context = *sc;
-		e = JsGetException();
+		e = JsCatchException();
 	}else if(r6.type == JS_COMPLETION 
 		&& r6.u.completion.type != JS_COMPLETION_NORMAL){
 		*res = r6;
 	}
 	if(e != NULL){
 		TRACE(na->location, context, JS_TRACE_THROW);
-		JsThrowException(e);
+		JsReThrowException(e);
 	}
 }
 
@@ -2251,9 +2253,12 @@ CallExpression_eval_common(context, loc, r1, argc, argv, res)
 	//如果引用的对象为Activation的时候, 使用Global作为this
 	if(!r7)
 		r7 = JsGetVm()->Global;
+	//Stack位置处理
+	JsListPush(context->stack,loc);
 	TRACE(loc, context, JS_TRACE_CALL);
 	(*r3.u.object->Call)(r3.u.object,r7,argc,argv,res);
 	TRACE(loc, context, JS_TRACE_RETURN);
+	JsListRemove(context->stack,JS_LIST_END);
 }
 
 
@@ -2333,11 +2338,12 @@ MemberExpression_new_eval(na, context, res)
 		JsThrowString("new not an object");
 	if (r2.u.object->Construct == NULL)
 		JsThrowString("not_a_constructor");
-		
+	JsListPush(context->stack,na->location);
 	TRACE(na->location, context, JS_TRACE_CALL);
 	//Call, 不使用this指针.
 	(*r2.u.object->Construct)(r2.u.object,NULL,argc, argv, res);
 	TRACE(na->location, context, JS_TRACE_RETURN);
+	JsListRemove(context->stack,JS_LIST_END);
 }
 
 

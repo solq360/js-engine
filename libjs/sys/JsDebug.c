@@ -4,6 +4,7 @@
 #include"JsValue.h"
 #include"JsObject.h"
 #include"JsVm.h"
+#include"JsList.h"
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdarg.h>
@@ -53,6 +54,17 @@ void JsPrintValue(struct JsValue* v){
 		printf("unknow type");
 	}
 	printf("\n");
+}
+void JsPrintStack(JsList stack){
+	JsAssert(stack != NULL);
+	int size = JsListSize(stack);
+	int i;
+	printf("*******Stack******\n");
+	for(i = size -1  ; i >= 0 ; --i){
+		struct JsLocation* l = JsListGet(stack,i);
+		printf("[%s : %d] \n",l->filename,l->lineno);
+	}
+	printf("******************\n");
 }
 void JsAssert(int v){
 	assert(v);

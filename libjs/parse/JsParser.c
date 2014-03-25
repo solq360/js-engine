@@ -2259,7 +2259,7 @@ FunctionBody_parse(parser)
 //-----------------------------------------------------
 //接口函数
 
-void JsParseFile(int debug, char* filename , struct JsAstNode** ast){
+struct JsAstNode* JsParseFile(int debug, char* filename){
 	struct JsAstNode* program ;
 	struct JsParser* parser  ;
 	yyscan_t lexer;
@@ -2272,8 +2272,7 @@ void JsParseFile(int debug, char* filename , struct JsAstNode** ast){
 		if(debug >= JS_PARSER_DEBUG_ERROR){
 			printf("Parse: open file %s fail \n",filename); 
 		}
-		*ast = NULL;
-		return ;
+		return NULL;
 	}
 	
 	parser = (struct JsParser*) JsMalloc(sizeof(struct JsParser));
@@ -2285,8 +2284,7 @@ void JsParseFile(int debug, char* filename , struct JsAstNode** ast){
 		if(debug >= JS_PARSER_DEBUG_ERROR){
 			printf("Parse:  init lexer fail \n"); 
 		}
-		*ast = NULL;
-		return ;
+		return NULL;
 	}
 	yyset_in(file,lexer);
 	parser->lexer = lexer;
@@ -2314,15 +2312,13 @@ void JsParseFile(int debug, char* filename , struct JsAstNode** ast){
 	yylex_destroy(lexer);
 	
 	if(parser->error != 0){
-		*ast = NULL;
-		return ;
+		return NULL;
 	}
-	*ast = program;
-	return;
+	return program;
 }
 
 
-void JsParseString(int debug, char* string , struct JsAstNode** ast){
+struct JsAstNode* JsParseString(int debug, char* string){
 	struct JsAstNode* program ;
 	struct JsParser* parser  ;
 	YY_BUFFER_STATE bp ;
@@ -2331,8 +2327,7 @@ void JsParseString(int debug, char* string , struct JsAstNode** ast){
 		if(debug >= JS_PARSER_DEBUG_ERROR){
 			printf("Parse: String is NULL \n"); 
 		}
-		*ast = NULL;
-		return ;
+		return NULL;
 	}
 	
 	parser = (struct JsParser*) JsMalloc(sizeof(struct JsParser));
@@ -2344,8 +2339,7 @@ void JsParseString(int debug, char* string , struct JsAstNode** ast){
 		if(debug >= JS_PARSER_DEBUG_ERROR){
 			printf("Parse:  init lexer fail \n"); 
 		}
-		*ast = NULL;
-		return ;
+		return NULL;
 	}
 	bp = yy_scan_string(string,lexer);
 	yy_switch_to_buffer(bp,lexer);
@@ -2374,9 +2368,7 @@ void JsParseString(int debug, char* string , struct JsAstNode** ast){
 	yylex_destroy(lexer);
 
 	if(parser->error != 0){
-		*ast = NULL;
-		return ;
+		return NULL;
 	}
-	*ast = program;
-	return;
+	return program;
 }
