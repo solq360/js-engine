@@ -50,8 +50,6 @@ void JsStringInit(struct JsVm* vm){
 static struct JsObject* JsCreateStringObject(struct JsObject* prototype,char* str){
 	struct JsObject* string = JsAllocObject(JS_STRING_FLOOR);
 	JsCreateStandardObject(string);
-	if(prototype != NULL)
-		string->Prototype = prototype;
 	string->Class = "String";
 	string->Get = &JsStringInstGet;
 	if(str == NULL)
@@ -67,6 +65,9 @@ static struct JsObject* JsCreateStringObject(struct JsObject* prototype,char* st
 	vLength->type = JS_NUMBER;
 	vLength->u.number = strlen(str);
 	(*string->Put)(string,"length",vLength,JS_OBJECT_ATTR_STRICT);
+	//为了能把length Put进去, 把prototype延迟放入.
+	if(prototype != NULL)
+		string->Prototype = prototype;
 	return string;
 	
 }
@@ -173,7 +174,7 @@ static	void JsStringProtoCharAt(struct JsObject *self, struct JsObject *thisobj,
 	}else{
 		res->type =JS_STRING;
 		res->u.string = (char*)JsMalloc(4);
-		res->u.string[0] = v.u.string[(int)(pos.u.number - 1)];
+		res->u.string[0] = v.u.string[(int)(pos.u.number)];
 		res->u.string[1] = '\0';
 	}
 }
@@ -218,7 +219,8 @@ static	void JsStringInstGet(struct JsObject *self, char *prop,int* attr, struct 
 		res->u.string = (char*)JsMalloc(4);
 		res->u.string[0] = p[index];
 		res->u.string[1] = '\0';
-		*attr = JS_OBJECT_ATTR_DEFAULT;
+		if(attr)
+			*attr = JS_OBJECT_ATTR_DEFAULT;
 		return;
 	}
 	JsStandardGet(self,prop,attr,res);

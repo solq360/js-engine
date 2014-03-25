@@ -224,7 +224,7 @@ r10:
 	}
 	char* cur = (char*)JsMalloc(bit+4);
 	sprintf(cur,"%d",k);
-	(*self->Get)(self,cur,NULL,&v);
+	(*thisobj->Get)(thisobj,cur,NULL,&v);
 	if(v.type == JS_UNDEFINED|| v.type == JS_NULL){
 		
 	}else{

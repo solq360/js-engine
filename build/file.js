@@ -1,4 +1,4 @@
-(function(){
+/*(function(){
 	var a =1 ,b =2 ,c =3;
 	print("============test var==========");
 	print(a);
@@ -222,7 +222,7 @@
 	print("i--,i=1"+(i--));
 	
 })(0,1,2,3,"string",true,false,{a:1},function(){});
-
+*/
 (function(){
 	//test Base API
 	print("=====================test Base API===========");
@@ -238,4 +238,33 @@
 		print(name);
 	}
 	print(c);
+	c.a = 1;
+	print(c.hasOwnProperty('a'));
+	print(c.hasOwnProperty('c'));
+	print(c.hasOwnProperty('hasOwnProperty'));
+	var  c = function(){};
+	var d = new c();
+	print(c.prototype.isPrototypeOf(d));
+	var array = new Array(10,1,21,2);
+	for(var i = 0;i<array.length;++i)
+		print(array[i]);
+	array.push(1);
+	array.pop();
+	print(array);
+	
+	
+	var string = new String("12");
+	print(string);
+	string = new String(32);
+	print(string);
+	string   = "abcd";
+	print(string.length);
+	for(var i = 0; i < string.length;++i){
+		print(string.charAt(i))
+	}
+	var b = new Boolean(true);
+	print(b);
+	
+	var a = new Number("1233");
+	print(a);
 })();
