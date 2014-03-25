@@ -116,6 +116,6 @@ static	void JsBooleanProtoToString(struct JsObject *self, struct JsObject *thiso
 static	void JsBooleanProtoValueOf(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
 	if(strcmp(thisobj->Class,"Boolean") != 0)
 		JsThrowString("TypeError");
-	res->type =JS_STRING;
+	res->type =JS_BOOLEAN;
 	res->u.boolean = *(int*)thisobj->sb[JS_BOOLEAN_FLOOR];
 }

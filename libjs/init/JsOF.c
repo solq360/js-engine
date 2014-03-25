@@ -208,6 +208,7 @@ static void JsObjectProtoIsPrototypeOfCall(struct JsObject *obj, struct JsObject
 	res->type = JS_BOOLEAN;
 	if(argc <= 0){
 		res->u.boolean = FALSE;
+		return;
 	}
 	if(argv[0]->type != JS_OBJECT){
 		res->type = JS_BOOLEAN;
@@ -322,6 +323,7 @@ static void JsFunctionProtoApplyCall(struct JsObject *obj, struct JsObject *this
 	struct JsValue** argv0;
 	if(thisobj == NULL){
 		JsThrowString("null point this");
+		return;
 	}
 	if(thisobj->Call == NULL){
 		JsThrowString("TypeError");
