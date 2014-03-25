@@ -74,7 +74,7 @@ static void JsNumberFunctionInit(struct JsObject* number,struct JsObject* number
 static	void JsNumberConstCall(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
 	if(argc <= 0){
 		res->type = JS_NUMBER;
-		res->u.number = FALSE;
+		res->u.number = 0.0;
 		return;
 	}
 	JsToNumber(argv[0],res);
@@ -117,12 +117,12 @@ static void JsNumberProtoInit(struct JsObject* number,struct JsObject* number_pr
 static	void JsNumberProtoToString(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
 	if(strcmp(thisobj->Class,"Number") != 0)
 		JsThrowString("TypeError");
-	res->type =JS_BOOLEAN;
-	res->u.number = *(int*)thisobj->sb[JS_NUMBER_FLOOR];
+	res->type =JS_NUMBER;
+	res->u.number = *(double*)thisobj->sb[JS_NUMBER_FLOOR];
 }
 static	void JsNumberProtoValueOf(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
 	if(strcmp(thisobj->Class,"Number") != 0)
 		JsThrowString("TypeError");
-	res->type =JS_STRING;
-	res->u.number = *(int*)thisobj->sb[JS_NUMBER_FLOOR];
+	res->type =JS_NUMBER;
+	res->u.number = *(double*)thisobj->sb[JS_NUMBER_FLOOR];
 }

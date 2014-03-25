@@ -223,14 +223,19 @@
 	
 })(0,1,2,3,"string",true,false,{a:1},function(){});
 
-
-	function b (){
-		va.a;
+(function(){
+	//test Base API
+	print("=====================test Base API===========");
+	print(NaN);
+	print(undefined);
+	eval("print(this)");
+	print(isNaN(1));
+	print(isNaN(NaN));
+	
+	
+	var c = new Object(1);
+	for(var name in c ){
+		print(name);
 	}
-	function a(){
-		return function(){
-			b();
-		};
-	}
-	var f = a();
-	new f();
+	print(c);
+})();

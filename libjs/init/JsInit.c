@@ -14,9 +14,10 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
+#include<math.h>
 
 static	void JsGlobalEval(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res);
-
+static	void JsIsNaN(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res);
 void JsECMAScriptObjectInit(struct JsVm* vm){
 	
 	struct JsValue t ;
@@ -58,6 +59,20 @@ void JsECMAScriptObjectInit(struct JsVm* vm){
 	v->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
 	v->u.object->Call = &JsGlobalEval;
 	(*vm->Global->Put)(vm->Global,"eval",v,JS_OBJECT_ATTR_STRICT);
+	//isNaN
+	v = (struct JsValue*)JsMalloc(sizeof(struct JsValue));
+	v->type = JS_OBJECT;
+	v->u.object = JsCreateStandardFunctionObject(NULL,NULL,FALSE);
+	v->u.object->Call = &JsIsNaN;
+	(*vm->Global->Put)(vm->Global,"isNaN",v,JS_OBJECT_ATTR_STRICT);
+}
+
+static	void JsIsNaN(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
+	res->type = JS_BOOLEAN;
+	res->u.boolean = FALSE;
+	if(argv[0]->type == JS_NUMBER && isnan(argv[0]->u.number)){
+		res->u.boolean  = TRUE;
+	}
 }
 /*
 	相当于把string字符串放置在当前环境下执行.
