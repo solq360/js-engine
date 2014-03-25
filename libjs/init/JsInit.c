@@ -70,6 +70,8 @@ void JsECMAScriptObjectInit(struct JsVm* vm){
 static	void JsIsNaN(struct JsObject *self, struct JsObject *thisobj, int argc, struct JsValue **argv, struct JsValue *res){
 	res->type = JS_BOOLEAN;
 	res->u.boolean = FALSE;
+	if(argc <= 0)
+		return;
 	if(argv[0]->type == JS_NUMBER && isnan(argv[0]->u.number)){
 		res->u.boolean  = TRUE;
 	}
