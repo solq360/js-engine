@@ -69,6 +69,7 @@
 "true" 			return tTRUE;
 "false" 		return tFALSE;
 "null" 			return tNULL;
+"synchronized"  return tSYNCHRONIZED;
 
 [a-zA-Z_$][a-zA-Z_$0-9]*    {
 	yylval->string = (char*)JsMalloc(yyleng+1);

@@ -101,8 +101,9 @@ enum JsAstClassEnum {
 	NODECLASS_FunctionDeclaration                = 91,
 	NODECLASS_FunctionExpression                 = 92,
 	NODECLASS_FunctionBody                       = 93,
-	NODECLASS_SourceElements                     = 94
-	#define NODECLASS_MAX                        95
+	NODECLASS_SourceElements                     = 94,
+	NODECLASS_SyncBlockStatement		         = 95,
+	#define NODECLASS_MAX                        96
 };
 
 
@@ -266,6 +267,7 @@ struct JsAstTryStatementNode {
 
 struct JsAstFunctionNode {
 	struct JsAstNode node;
+	int isSync;
 	int argc;
 	char** argv;
 	char* name;
@@ -284,5 +286,13 @@ struct JsAstSourceElementsNode {
 		struct JsAstSourceElement *next;
 	} *statements;
 };
-
+struct JsAstSyncBlockStatementNode{
+	struct JsAstNode node;
+	enum{
+		JS_SYNC_THIS_BLOCK_NODE,
+		JS_SYNC_IDENT_BLOCK_NODE
+	}type;
+	char* ident;
+	struct JsAstNode* a;
+};
 #endif

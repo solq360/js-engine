@@ -64,10 +64,11 @@
 #define tTRUE		314 // true
 #define tNULL		315 // null
 #define tFALSE		316 // false
-
+#define tSYNCHRONIZED 317 // synchronized
+#define TOKEN_MAX     318 //Token数量标记
 //通过token 获得它的字符串
 const char* JsTokenName(int token);
-#define NO_USED_TOKEN -1
+
 //支援lexer
 typedef union YYSTYPE {
 	char* string;

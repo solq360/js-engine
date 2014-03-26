@@ -467,7 +467,7 @@ extern int yylex \
 #undef YY_DECL
 #endif
 
-#line 117 "JsLexer.l"
+#line 118 "JsLexer.l"
 
 
 #line 474 "JsLexer.h"

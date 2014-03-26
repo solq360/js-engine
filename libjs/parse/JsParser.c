@@ -25,10 +25,17 @@ struct JsParser{
 	int funcdepth;//是否在函数中
 	
 	//Token
-	int token ;//Lookahead(0) 的token
-	YYSTYPE value;//Lookahead(0) 的Value
+	int token ;//Lookahead(1) 的token
+	YYSTYPE value;//Lookahead(1) 的Value
 	int hasLineToken;//检测时,发现为tLINETERMINATOR的时候标志它, 并读取下一个非tLINETERMINATOR,
 					// 且在SKIP的时候消除原先标记;
+	//Token2
+	int clear ; // token缓存是否是干净的
+	int token2 ;//Lookahead(2) 的token
+	YYSTYPE value2;//Lookahead(2) 的Value
+	int hasLineToken2;//检测时,发现为tLINETERMINATOR的时候标志它, 并读取下一个非tLINETERMINATOR,
+					// 且在SKIP的时候消除原先标记;
+	
 };
 //参数辅助结构
 struct var {
@@ -40,6 +47,8 @@ struct var {
 	
 static struct JsAstNode *new_node(struct JsParser *parser, int sz, 
         enum JsAstClassEnum nc, const char *dbg_nc);
+//超前查第2个单词
+static int lookahead2();
 //返回查看过程中是否发现换行
 static void yylex0(YYSTYPE* v,int* t,int* has, yyscan_t lexer);
 
@@ -90,24 +99,34 @@ static struct var *FormalParameterList_parse(struct JsParser *parser);
 static struct JsAstNode *FunctionBody_parse(struct JsParser *parser);
 static struct JsAstNode *Program_parse(struct JsParser *parser);
 static struct JsAstNode *SourceElements_parse(struct JsParser *parser);
+
+static struct JsAstNode *SyncBlockStatement_parse(struct JsParser *parser);
 /*------------------------------------------------------------
  * macros
  */
  
 //转载下一个TOKEN, 且是唯一方式
+
 #define SKIP \
 		do{ \
 			if(parser->token != tEND){ \
-				 yylex0(&parser->value, \
-					&parser->token,&parser->hasLineToken,parser->lexer);\
+				if(parser->clear == FALSE){ \
+					parser->value = parser->value2; \
+					parser->token = parser->token2; \
+					parser->hasLineToken = parser->hasLineToken2; \
+					parser->clear = TRUE; \
+				}else{ \
+					yylex0(&parser->value, \
+						&parser->token,&parser->hasLineToken,parser->lexer);\
+				} \
 			}\
 		}while(0)
 		
-//超前0个的Token	
+//超前1个的Token	
 #define NEXT \
 		(parser->token)
 		
-//超前0个的value	
+//超前1个的value	
 #define NEXT_VALUE \
 		(&parser->value)
 
@@ -229,6 +248,19 @@ new_node(parser, sz, nc,dbg_nc)
 	}
 	return n;
 }
+static int lookahead2(struct JsParser* parser){
+	//只有在lookahead(0)不是文件结尾 并且缓存为空的时候，才加载下一个单词
+	if(parser->token == tEND){
+		return tEND;
+	}
+	if(parser->clear == TRUE){ 
+		 yylex0(&parser->value2,
+			&parser->token2,&parser->hasLineToken2,parser->lexer);
+		//标记已经加载了下一个单词
+		parser->clear = FALSE;
+	}
+	return parser->token2;
+}
 static void yylex0(YYSTYPE* v,int* t,int* has, yyscan_t lexer){
 	//每次开始默认为没有lineToken
 	int hasLineToken; 
@@ -309,7 +341,7 @@ SourceElements_parse(parser)
 	    case tVAR: case tIF: case tDO: case tWHILE: case tFOR:
 	    case tCONTINUE: case tBREAK: case tRETURN:
 	    case tWITH: case tSWITCH: case tTHROW: case tTRY:
-	    case tDIV: case tDIVEQ: /* in lieu of tREGEX */
+	    case tDIV: case tDIVEQ: case tSYNCHRONIZED: /* in lieu of tREGEX */
 			*s = (struct JsAstSourceElement*)JsMalloc(sizeof(struct JsAstSourceElement));
 			PARSE(Statement,(*s)->node);
 			s = &(*s)->next;
@@ -345,6 +377,7 @@ SourceElements_parse(parser)
  *	|	SwitchStatement
  *	|	ThrowStatement
  *	|	TryStatement
+ *  |   SyncBlockStatement
  *	;
  *
  */
@@ -392,11 +425,50 @@ Statement_parse(parser)
 	case tTRY:
 		PARSE(TryStatement,n);
 		return n;
+	
 	default:
-		PARSE(ExpressionStatement,n);
+		if(NEXT == tSYNCHRONIZED && lookahead2(parser) == '('){
+			//synchronzied(this | ident) block
+			PARSE(SyncBlockStatement,n);
+		}else{
+			PARSE(ExpressionStatement,n);
+		}
 		return n;
 	}
 }
+/*
+	对synchronzied(this | ident){
+		
+	}
+	的解析
+*/
+static struct JsAstNode *SyncBlockStatement_parse(struct JsParser *parser){
+
+	struct JsAstSyncBlockStatementNode *n = NULL;
+	n = NEW_NODE(struct JsAstSyncBlockStatementNode, NODECLASS_SyncBlockStatement);
+	EXPECT(tSYNCHRONIZED);
+	if(NEXT == '('){
+		//Block
+		SKIP;
+		if(NEXT == tTHIS){
+			n->type = JS_SYNC_THIS_BLOCK_NODE;
+			n->ident = NULL;
+		}else if(NEXT == tIDENT){
+			n->type = JS_SYNC_IDENT_BLOCK_NODE;
+			n->ident = NEXT_VALUE->string;
+		}else{
+			ERRORm("synchronized( this | ident ){ } , but syntax is't right");
+		}
+		SKIP;
+		EXPECT(')');
+		//解析Block
+		PARSE(Block,n->a);
+	}else{
+		ERRORm("synchronized syntax error");
+	}
+	return (struct JsAstNode *)n;
+}
+
 
 /*
  *	-- 12.1
@@ -986,9 +1058,6 @@ TryStatement_parse(parser)
 
 	return (struct JsAstNode *)n;
 }
-
-
-
 
 /*
  *	-- 11.14
@@ -1761,6 +1830,7 @@ MemberExpression_parse(parser)
 	struct JsAstMemberExpressionBracketNode *bn;
 
 	switch (NEXT) {
+		case tSYNCHRONIZED:
         case tFUNCTION:
 			PARSE(FunctionExpression,n);
 			break;
@@ -1816,6 +1886,7 @@ LeftHandSideExpression_parse(parser)
 	struct JsAstMemberExpressionBracketNode *bn;
 
 	switch (NEXT) {
+	case tSYNCHRONIZED:
 	case tFUNCTION:
 		PARSE(FunctionExpression,n);	/* 11.2.5 */
 		break;
@@ -2178,6 +2249,12 @@ FunctionExpression_parse(parser)
 	parser->is_lhs = 0;
 
 	n = NEW_NODE(struct JsAstFunctionNode, NODECLASS_FunctionExpression);
+	if(NEXT == tSYNCHRONIZED){
+		n->isSync = TRUE;
+		SKIP;
+	}
+	else
+		n->isSync = FALSE;
 	EXPECT(tFUNCTION);
 	if (NEXT == tIDENT) {
 		name = NEXT_VALUE->string;
@@ -2302,7 +2379,8 @@ struct JsAstNode* JsParseFile(int debug, char* filename){
 	//装载第一个Lookahead的token
 	yylex0(&parser->value,&parser->token,
 		&parser->hasLineToken,parser->lexer);
-	
+	//没有装载超前Token
+	parser->clear = TRUE;
 	//parse
 	PARSE_NO_CHECK(Program,program);
 	
@@ -2360,7 +2438,8 @@ struct JsAstNode* JsParseString(int debug, char* string){
 	//装载第一个Lookahead的token
 	yylex0(&parser->value,&parser->token,
 			&parser->hasLineToken,parser->lexer);
-	
+	//没有装载超前Token
+	parser->clear = TRUE;
 	//parse
 	PARSE_NO_CHECK(Program,program);
 	//析构

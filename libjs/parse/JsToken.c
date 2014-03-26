@@ -1,7 +1,7 @@
 
 #include<stdlib.h>
 #include"JsToken.h"
-static  char* jsTokenNameTable[317] = {
+static  char* JsTokenNameTable[TOKEN_MAX] = {
 "tEND",
 "unknow",
 "unknow",
@@ -318,9 +318,10 @@ static  char* jsTokenNameTable[317] = {
 "tLINETERMINATOR",
 "tTRUE"		,
 "tNULL"	,
-"tFALSE"
+"tFALSE",
+"tSYNCHRONIZED"
 };
 
 const char* JsTokenName(int token){
-	return jsTokenNameTable[token];
+	return JsTokenNameTable[token];
 }

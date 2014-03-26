@@ -234,7 +234,10 @@ static void UnaryExpression_typeof_eval_common(struct JsContext *,
 static void UnaryExpression_inv_eval_common(struct JsContext *,
 		struct JsValue *, struct JsValue *);
 static void JsFunctionCall(struct JsEngine* e,void* data,struct JsValue* res);
-
+		
+static void SyncBlockcStatement_eval(struct JsAstNode *na, 
+        struct JsContext *context, struct JsValue *res);
+	
 //JsAstClassEnum 对应的处理函数
 static void (*JsNodeClassEval[NODECLASS_MAX])(struct JsAstNode* ,
 	struct JsContext*,struct JsValue*) = {
@@ -333,6 +336,7 @@ static void (*JsNodeClassEval[NODECLASS_MAX])(struct JsAstNode* ,
     ,FunctionExpression_eval                /*FunctionExpression*/
     ,FunctionBody_eval                      /*FunctionBody*/
     ,SourceElements_eval                    /*SourceElements*/
+	,SyncBlockcStatement_eval				/*SynchronziedBlockStatement*/
 };	
 
 
@@ -1038,7 +1042,45 @@ TryStatement_catchfinally_eval(na, context, res)
 	}
 }
 
-
+static void SyncBlockcStatement_eval(struct JsAstNode *na, 
+        struct JsContext *context, struct JsValue *res){
+		
+	struct JsAstSyncBlockStatementNode *n = CAST_NODE(na, JsAstSyncBlockStatementNode);	
+	TRACE(na->location, context, JS_TRACE_STATEMENT);
+	
+	struct JsObject* lockObj = NULL;
+	struct JsValue* e = NULL;
+	struct JsValue v0,v1;
+	if(n->type == JS_SYNC_THIS_BLOCK_NODE){
+		//this block
+		lockObj = context->thisObj;
+		
+	}else if(n->type == JS_SYNC_IDENT_BLOCK_NODE){
+		JsFindValueRef(context,n->ident,&v0);
+		JsGetValue(&v0,&v1);
+		if(v1.type != JS_OBJECT || v1.u.object == NULL){
+			JsThrowString("ident is't a object");
+		}
+		lockObj = v1.u.object;
+	}else{
+		JsThrowString("synchronzied syntax error");
+	}
+	//对Block加锁
+	JsLockup(lockObj->SyncLock);
+	JS_TRY(0){
+		EVAL(n->a,context,res);
+	}
+	JS_CATCH(e){
+		//如果期间发现异常, 则先解锁, 在抛出
+		JsUnlock(lockObj->SyncLock);
+		JsReThrowException(e);
+		return;
+	}
+	//对Block解锁
+	JsUnlock(lockObj->SyncLock);
+	return;
+	
+}
 
 /* 11.14 */
 static void
@@ -2503,7 +2545,7 @@ FunctionExpression_eval(na, context, res)
 
 	//创建一个对象
 	struct JsObject* fun = JsCreateStandardSpecFunction(NULL,context->scope,n->argc, n->argv,
-		&JsFunctionCall,n->body,n->name,FALSE);
+		&JsFunctionCall,n->body,n->name,n->isSync);
 	if(n->name != NULL){
 		//添加到当前Scope中
 		struct JsObject* top = (struct JsObject*)JsListGet(context->scope,JS_LIST_END);

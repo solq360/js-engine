@@ -267,18 +267,29 @@
 	
 	var a = new Number("1233");
 	print(a);
-})();/*
+})();
 setTimeout(function(){
 	print("hello setTimeout");
 	throw "finish";
-},5);*/
-/*跑多少线程 在于系统资源的分配*/
+},5);
+
+synchronized function funa(id){
+	for(var i = 0 ; i < 100;++i)
+		print("thread ["+id+"]: "+i);
+	throw "finish"
+}
+var i = 0;
+var lock = {};
 var fCreateNewThread = function(id,fun){
 	thread(function(){
-		for(var i =0 ; i < 1000;++i){
-			print("thread["+id+"] : " + i)
+		synchronized(lock){
+			for(var i = 0 ; i < 10;++i)
+				print("thread ["+id+"]: "+i);
+			throw "finish"
 		}
+		funa(id);
 	});
 };
-for(var i = 0 ; i < 1000 ;++i)
+for(var i = 0 ; i < 5 ;++i)
 	fCreateNewThread(i);
+	
