@@ -271,8 +271,12 @@
 	print(a);
 })();*/
 
-var test = "a";
-setTimeout(function(){
-	print("hello world");
-	print("nio TEST : " + test);
-},2);
+/*跑多少线程 在于系统资源的分配*/
+var fCreateNewThread = function(id,fun){
+	thread(function(){
+		for(var i = 0 ; i < 10 ; ++i)
+			print("thread["+id+"]");
+	});
+};
+for(var i = 0 ; i < 100 ;++i)
+	fCreateNewThread(i);
