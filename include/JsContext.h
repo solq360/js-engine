@@ -46,7 +46,10 @@ struct JsContext{
 		当该Context不占用线程的时候, 设置为NULL, 如加入Engine.waits
 		队列中
 	*/
-	JsThread thread; 	
+	JsThread 	thread;
+	//属性在Dispatch中被修改
+	JsTaskFn  	task; //dispathch记录的task
+	void* 		data; //给task的数据
 };
 /****************************************************************************
 									通用API

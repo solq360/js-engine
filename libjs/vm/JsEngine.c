@@ -52,7 +52,9 @@ void JsDispatch(struct JsContext* c,JsTaskFn task,void* data){
 		return;
 //添加到wait队列中
 	JsLockup(e->lock);
-
+	//关联任务到上下文中
+	c->task = task;
+	c->data = data;
 	JsListPush(e->waits,c);
 	c->thread = NULL;
 	c = NULL;
@@ -85,7 +87,7 @@ void JsDispatch(struct JsContext* c,JsTaskFn task,void* data){
 		JsSetTlsEngine(e);
 		JsSetTlsContext(e->exec);
 		JS_TRY(0){
-			(*task)(e,data);
+			(*e->exec->task)(e,e->exec->data);
 		}
 		struct JsValue* error = NULL;
 		JS_CATCH(error){
