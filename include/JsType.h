@@ -42,7 +42,7 @@ typedef void* (*JsThreadFn)(void* data);
 typedef void (*JsVmTraceFn)(struct JsEngine* e,struct JsLocation* l, enum JsTraceEvent event);
 
 /*上下文任务*/
-typedef void (*JsContextTaskFn)(struct JsEngine* e);
+typedef void (*JsContextTaskFn)(struct JsEngine* e,void* data);
 
 /*
 	被标准函数所使用的函数指针 

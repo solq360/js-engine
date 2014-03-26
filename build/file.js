@@ -223,6 +223,8 @@
 	
 })(0,1,2,3,"string",true,false,{a:1},function(){});
 */
+
+/*
 (function(){
 	//test Base API
 	print("=====================test Base API===========");
@@ -267,4 +269,10 @@
 	
 	var a = new Number("1233");
 	print(a);
-})();
+})();*/
+
+var test = "a";
+setTimeout(function(){
+	print("hello world");
+	print("nio TEST : " + test);
+},2);

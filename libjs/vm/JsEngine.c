@@ -85,7 +85,7 @@ void JsDispatch(struct JsContext* c){
 		JsSetTlsEngine(e);
 		JsSetTlsContext(e->exec);
 		JS_TRY(0){
-			(*e->exec->task)(e);
+			(*e->exec->task)(e,e->exec->data);
 		}
 		struct JsValue* error = NULL;
 		JS_CATCH(error){
