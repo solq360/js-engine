@@ -133,13 +133,6 @@ JsList JsGetExceptionStack(){
 	return p->stack;
 
 }
-void JsSetException(struct JsValue* v){
-
-	struct JsException* p  = (struct JsException*)JsGetTlsValue(eKey);
-	if(p == NULL)
-		return;
-	p->err = v;
-}
 
 static void JsInitTlsKey(){
 	eKey = JsCreateTlsKey(JsTlsClose);
