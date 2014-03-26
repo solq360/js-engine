@@ -1,4 +1,4 @@
-/*(function(){
+(function(){
 	var a =1 ,b =2 ,c =3;
 	print("============test var==========");
 	print(a);
@@ -222,9 +222,7 @@
 	print("i--,i=1"+(i--));
 	
 })(0,1,2,3,"string",true,false,{a:1},function(){});
-*/
 
-/*
 (function(){
 	//test Base API
 	print("=====================test Base API===========");
@@ -269,13 +267,17 @@
 	
 	var a = new Number("1233");
 	print(a);
-})();*/
-
+})();
+setTimeout(function(){
+	print("hello setTimeout");
+	throw "finish";
+},5);
 /*跑多少线程 在于系统资源的分配*/
 var fCreateNewThread = function(id,fun){
 	thread(function(){
 		for(var i = 0 ; i < 10 ; ++i)
 			print("thread["+id+"]");
+		throw "finish";
 	});
 };
 for(var i = 0 ; i < 100 ;++i)

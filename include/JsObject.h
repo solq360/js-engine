@@ -86,27 +86,24 @@ struct JsObject* JsCreateStandardFunctionObject(struct JsObject* o,JsList scope,
 		o = NULL, 构造新空间
 	scope:
 		scope == NULL , scope = VM->Global
-	type:
-		type = 0 JS_FUNCTION_NATIVE
-		type = 1 JS_FUNCTION_EVAL
 	argc:	
 		预定义的函数参数
 	argv:
 		参数的名字
 	data:
 		和fn配合使用的数据, 在Object->cls->Call的时候传递给fn
-		注: 如果为EVAL, 则data为 struct JsAstNode*
 	name:
 		该函数的名字, 可以为NULL
 	sync:
 		函数是否需要同步
 	最终的到的objcect添加了一般的函数属性(通过obj->cls->Get获取)如:
 		length,
-		prototype,
+		prototype.
+	整个函数类似JS中标准的函数
 		
 */
-struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,int type,int argc, 
-		char** argv,void* data,JsFunctionFn fn,char* name,int sync);
+struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,int argc, 
+		char** argv,JsFunctionFn fn,void* data,char* name,int sync);
 		
 /*标准对象内置的函数*/
 void JsStandardGet( struct JsObject *self,  char *prop,int* flag, struct JsValue *res);

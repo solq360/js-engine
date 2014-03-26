@@ -2502,8 +2502,8 @@ FunctionExpression_eval(na, context, res)
 	struct JsAstFunctionNode *n = CAST_NODE(na, JsAstFunctionNode);
 
 	//创建一个对象
-	struct JsObject* fun = JsCreateStandardSpecFunction(NULL,context->scope,1,n->argc, 
-		n->argv,n->body,&JsFunctionCall,n->name,FALSE);
+	struct JsObject* fun = JsCreateStandardSpecFunction(NULL,context->scope,n->argc, n->argv,
+		&JsFunctionCall,n->body,n->name,FALSE);
 	if(n->name != NULL){
 		//添加到当前Scope中
 		struct JsObject* top = (struct JsObject*)JsListGet(context->scope,JS_LIST_END);

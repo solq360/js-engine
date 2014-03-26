@@ -41,10 +41,6 @@ struct JsIterator{
 	struct JsObject* obj;//正在迭代的对象
 };
 struct JsFunction {
-	enum JsFunctionType{
-		JS_FUNCTION_NATIVE, //预示着body为一个回调函数
-		JS_FUNCTION_EVAL //预设着body为AST
-	}type;
 	int argc;
 	char **argv;
 	void *data; //存储的数据(AST, USER)
@@ -94,8 +90,8 @@ struct JsObject* JsCreateStandardFunctionObject(struct JsObject* o,JsList scope,
 	else
 		return JsCreateBaseObject(o,TRUE,0,scope);
 }
-struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,int type,
-		int argc, char** argv,void* data,JsFunctionFn fn,char* name,int sync){
+struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope, int argc, 
+		char** argv,JsFunctionFn fn,void* data,char* name,int sync){
 	
 	struct JsObject* obj = JsCreateBaseObject(o,TRUE,2,scope);
 	
@@ -103,11 +99,6 @@ struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,in
 	//添加到sb
 	
 	((struct JsStandardSelfBlock*)obj->sb[JS_STANDARD_OBJECT_FLOOR])->function = function;
-	//配置Function 内置属性
-	if(type == 0)
-		function->type = JS_FUNCTION_NATIVE;
-	else
-		function->type = JS_FUNCTION_EVAL;
 		
 	function->argc = argc; 
 	function->argv = argv;

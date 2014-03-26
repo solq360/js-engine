@@ -41,11 +41,12 @@ typedef void* (*JsThreadFn)(void* data);
 /* 调试函数指针 */
 typedef void (*JsVmTraceFn)(struct JsEngine* e,struct JsLocation* l, enum JsTraceEvent event);
 
-/*上下文任务*/
+/*JsDispatch() 调用的上下文任务*/
 typedef void (*JsContextTaskFn)(struct JsEngine* e,void* data);
 
 /*
-	被标准函数所使用的函数指针 
+	被标准函数所使用的函数指针, 
+	*如果函数需要读取参数, 则通过JsFindValue(argc)获取, 或则从JsFindValue(arguments)中获取.
 	e 		: JsEngine*
 	data	: 来自JsCreateStandardFunction(...)传入的data数据
 	res		: [JS_UNDEFINED, JS_NULL, JS_BOOLEAN, JS_STRING,JS_NUMBER,JS_OBJECT,JS_REFERENCE,JS_COMPLETION]
