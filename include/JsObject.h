@@ -99,11 +99,11 @@ struct JsObject* JsCreateStandardFunctionObject(struct JsObject* o,JsList scope,
 	最终的到的objcect添加了一般的函数属性(通过obj->cls->Get获取)如:
 		length,
 		prototype.
-	整个函数类似JS中标准的函数
+	*整个函数类似JS中标准的函数, 具有自己的Scope
 		
 */
 struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope,int argc, 
-		char** argv,JsFunctionFn fn,void* data,char* name,int sync);
+		char** argv,JsSpecFunctionFn fn,void* data,char* name,int sync);
 		
 /*标准对象内置的函数*/
 void JsStandardGet( struct JsObject *self,  char *prop,int* flag, struct JsValue *res);

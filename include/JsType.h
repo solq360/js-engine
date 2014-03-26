@@ -42,7 +42,7 @@ typedef void* (*JsThreadFn)(void* data);
 typedef void (*JsVmTraceFn)(struct JsEngine* e,struct JsLocation* l, enum JsTraceEvent event);
 
 /*JsDispatch() 调用的上下文任务*/
-typedef void (*JsContextTaskFn)(struct JsEngine* e,void* data);
+typedef void (*JsTaskFn)(struct JsEngine* e,void* data);
 
 /*
 	被标准函数所使用的函数指针, 
@@ -51,7 +51,7 @@ typedef void (*JsContextTaskFn)(struct JsEngine* e,void* data);
 	data	: 来自JsCreateStandardFunction(...)传入的data数据
 	res		: [JS_UNDEFINED, JS_NULL, JS_BOOLEAN, JS_STRING,JS_NUMBER,JS_OBJECT,JS_REFERENCE,JS_COMPLETION]
 */
-typedef void (*JsFunctionFn)(struct JsEngine* e,void* data,struct JsValue* res);
+typedef void (*JsSpecFunctionFn)(struct JsEngine* e,void* data,struct JsValue* res);
 
 /*NaN 数据类型*/
 #define JS_VALUE_NUMBER_NAN 		((double)(0.0/0.0))

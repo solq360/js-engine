@@ -44,7 +44,7 @@ struct JsFunction {
 	int argc;
 	char **argv;
 	void *data; //存储的数据(AST, USER)
-	JsFunctionFn fn; //指向具体的函数(EVAL, Standard)
+	JsSpecFunctionFn fn; //指向具体的函数(EVAL, Standard)
 	char *name;	/* optional function name */
 	int sync;//是否是Sync函数
 	JsLock fSyncLock;//函数-Sync锁
@@ -91,7 +91,7 @@ struct JsObject* JsCreateStandardFunctionObject(struct JsObject* o,JsList scope,
 		return JsCreateBaseObject(o,TRUE,0,scope);
 }
 struct JsObject* JsCreateStandardSpecFunction(struct JsObject* o,JsList scope, int argc, 
-		char** argv,JsFunctionFn fn,void* data,char* name,int sync){
+		char** argv,JsSpecFunctionFn fn,void* data,char* name,int sync){
 	
 	struct JsObject* obj = JsCreateBaseObject(o,TRUE,2,scope);
 	

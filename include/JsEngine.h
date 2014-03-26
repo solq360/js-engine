@@ -43,8 +43,9 @@ struct JsEngine* JsCreateEngine();
 /*
 	把c加入到wait队列中, 然后调度执行
 	执行完的Context从pools中剔除
+	task 不能为空
 */
-void JsDispatch(struct JsContext* c);
+void JsDispatch(struct JsContext* c,JsTaskFn task,void* data);
 /*
 	在创建Context需要关联新建的Context到它所属的Engine
 */

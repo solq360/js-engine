@@ -41,11 +41,11 @@ struct JsEngine* JsCreateEngine(){
 	return e;
 }
 
-void JsDispatch(struct JsContext* c){
+void JsDispatch(struct JsContext* c,JsTaskFn task,void* data){
 
 //验证
-	if(c == NULL)
-		return;
+	JsAssert(c != NULL && task != NULL);
+	
 	struct JsEngine* e = c->engine;
 	if(e == NULL || e->vm == NULL 
 		|| e->state ==JS_ENGINE_STOPPED || e->vm->state == JS_VM_HALT)
@@ -85,7 +85,7 @@ void JsDispatch(struct JsContext* c){
 		JsSetTlsEngine(e);
 		JsSetTlsContext(e->exec);
 		JS_TRY(0){
-			(*e->exec->task)(e,e->exec->data);
+			(*task)(e,data);
 		}
 		struct JsValue* error = NULL;
 		JS_CATCH(error){

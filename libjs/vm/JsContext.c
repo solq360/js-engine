@@ -24,19 +24,15 @@ void JsPostInitContext(){
 }
 
 
-struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c, 
-			JsContextTaskFn task, void* data){
+struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c){
 			
 	struct JsContext* context;
 	JsAssert(e != NULL);
-	JsAssert(task != NULL);
 	context = JsCopyContext(c);
 	context->engine = e;
 	//注册到JsEngine中
 	JsContext2Engine(e,context);
 	context->thread = NULL;
-	context->data = data;
-	context->task = task;
 
 	return context;	
 }
@@ -56,8 +52,6 @@ struct JsContext* JsCopyContext(struct JsContext* c){
 		/*10.2.1*/
 		context->varattr = JS_OBJECT_ATTR_DONTDELETE;
 		context->thread = NULL;
-		context->data = NULL;
-		context->task = NULL;
 	}else{
 		context->engine = c->engine;
 		JsListCopy(context->scope,c->scope);
@@ -66,9 +60,6 @@ struct JsContext* JsCopyContext(struct JsContext* c){
 		context->thisObj = c->thisObj;
 		context->varattr = c->varattr;
 		context->thread = c->thread;
-		context->data = c->data;
-		context->task = c->task;
-		
 	}
 	return context;	
 }

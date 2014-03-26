@@ -59,7 +59,7 @@ static void* JsSetTimeoutThread(void* data){
 	//nio 
 	sleep(p->t);
 	//finish -> add to Engine
-	JsDispatch(p->c);
+	JsDispatch(p->c,&JsRunFunctionTask,p->f);
 	return NULL;
 }
 //一个参数value
@@ -74,7 +74,7 @@ static void JsSetTimeout(struct JsEngine* e,void* data,struct JsValue* res){
 		&&vf.u.object != NULL && vf.u.object->Call != NULL){
 		struct JsPass* p =( struct JsPass* ) JsMalloc(sizeof(struct JsPass));
 		//配置新的context
-		struct JsContext* newContext = JsCreateContext(e,c,&JsRunFunctionTask,vf.u.object);
+		struct JsContext* newContext = JsCreateContext(e,c);
 		p->c = newContext;
 		p->f = vf.u.object;
 		p->t = vt.u.number;
@@ -104,7 +104,7 @@ static void* JsNewEngineThread(void* data){
 	struct JsContext* c = p->c;
 	JsSetTlsContext( c);
 	//finish -> add to Engine
-	JsDispatch(c);
+	JsDispatch(c,&JsRunFunctionTask,p->f);
 	return NULL;
 }
 //一个参数value
@@ -119,7 +119,7 @@ static void JsThread0(struct JsEngine* e,void* data,struct JsValue* res){
 		struct JsPass* p =( struct JsPass* ) JsMalloc(sizeof(struct JsPass));
 		//配置新开线程的context;
 		struct JsEngine* newEngine = JsCreateEngine();
-		c = JsCreateContext(newEngine,c,&JsRunFunctionTask,vf.u.object);
+		c = JsCreateContext(newEngine,c);
 		p->c = c;
 		p->f = vf.u.object;
 		JsStartThread(&JsNewEngineThread,p);
@@ -149,11 +149,11 @@ static void JsContextTask(struct JsEngine* e,void* data){
 int main(){
 	JsCreateVm(TRUE,0,NULL, NULL);
 	struct JsEngine* e = JsCreateEngine();
-	struct JsContext* c = JsCreateContext(e, NULL, &JsContextTask, NULL);
+	struct JsContext* c = JsCreateContext(e, NULL);
 	CreatePrintFn();
 	CreateSetTimeout();
 	CreateThread();
-	JsDispatch(c);
+	JsDispatch(c,&JsContextTask,NULL);
 	//安全推出主线程
 	JsCloseSelf();
 	return 0;

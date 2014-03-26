@@ -267,18 +267,18 @@
 	
 	var a = new Number("1233");
 	print(a);
-})();
+})();/*
 setTimeout(function(){
 	print("hello setTimeout");
 	throw "finish";
-},5);
+},5);*/
 /*跑多少线程 在于系统资源的分配*/
 var fCreateNewThread = function(id,fun){
 	thread(function(){
-		for(var i = 0 ; i < 10 ; ++i)
-			print("thread["+id+"]");
-		throw "finish";
+		for(var i =0 ; i < 1000;++i){
+			print("thread["+id+"] : " + i)
+		}
 	});
 };
-for(var i = 0 ; i < 100 ;++i)
+for(var i = 0 ; i < 1000 ;++i)
 	fCreateNewThread(i);

@@ -46,13 +46,7 @@ struct JsContext{
 		当该Context不占用线程的时候, 设置为NULL, 如加入Engine.waits
 		队列中
 	*/
-	JsThread thread; 
-	/*
-		当JsContext被JsEngine调用的时候, 会执行如下属性
-	*/
-	void* data; //和task钩子函数联合使用
-	JsContextTaskFn task; //指向Task的函数
-	
+	JsThread thread; 	
 };
 /****************************************************************************
 									通用API
@@ -66,8 +60,7 @@ void JsPostInitContext();
 	否则 拷贝c
 	*最后把该context注册到JsEngine中
 */
-struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c, 
-			JsContextTaskFn taskFn, void* data);
+struct JsContext* JsCreateContext(struct JsEngine* e, struct JsContext* c);
 			
 /*
 	创建新的JsContext
